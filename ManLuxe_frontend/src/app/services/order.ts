@@ -41,6 +41,11 @@ export class OrderService {
     });
   }
 
+  /** Get current user's orders as Observable */
+  getMyOrders() {
+    return this.http.get<Order[]>(`${this.base}/my-orders`);
+  }
+
   /** Checkout — creates order from cart on backend */
   checkout() {
     return this.http.post<Order>(`${this.base}/checkout`, {});

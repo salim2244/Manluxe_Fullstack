@@ -1,10 +1,11 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { OrderService } from '../../services/order';
 import { Order, OrderStatus } from '../../models/order';
 import { Header } from '../../components/header/header';
 import { Footer } from '../../components/footer/footer';
+import { Auth } from '../../services/auth';
 
 @Component({
   selector: 'app-orders',
@@ -15,6 +16,8 @@ import { Footer } from '../../components/footer/footer';
 })
 export class OrdersPage implements OnInit {
   orderService = inject(OrderService);
+  auth = inject(Auth);
+  private cdr = inject(ChangeDetectorRef);
 
   orders: Order[] = [];
   loading = true;
@@ -22,14 +25,38 @@ export class OrdersPage implements OnInit {
   expandedOrders: Set<number> = new Set();
 
   ngOnInit() {
-    this.loadOrders();
+    // Small delay to ensure auth state is properly initialized
+    setTimeout(() => {
+      if (this.auth.isLoggedIn()) {
+        this.loadOrders();
+      } else {
+        this.error = 'Please login to view your orders';
+        this.loading = false;
+      }
+    }, 100);
   }
 
   loadOrders() {
     this.loading = true;
-    this.orderService.loadMyOrders();
-    this.orders = this.orderService.orders();
-    this.loading = false;
+    this.error = '';
+    
+    console.log('Loading orders...');
+    
+    this.orderService.getMyOrders().subscribe({
+      next: (data) => {
+        console.log('Orders loaded successfully:', data);
+        this.orders = data;
+        this.loading = false;
+        // Explicitly trigger change detection
+        this.cdr.detectChanges();
+      },
+      error: (err) => {
+        console.error('Failed to load orders:', err);
+        this.error = 'Failed to load orders. Please try again.';
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
+    });
   }
 
   toggleOrderExpansion(orderId: number) {

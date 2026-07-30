@@ -61,27 +61,28 @@ export class Signup {
 ];
 
 private readonly EMAIL_REGEX =
-  /^[A-Za-z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.com$/i;
+  /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i;
 
 isValidEmail(): boolean {
   return this.EMAIL_REGEX.test(this.email.trim());
 }
-  
 
   /**
-   * Only accepts emails like:
-   * abc@gmail.com
-   * abc@yahoo.com
-   * abc@outlook.com
-   * abc@hotmail.com
+   * General email validation - accepts any valid email format
    */
 
   validate(): boolean {
 
     this.errors = {};
 
-    if (!this.EMAIL_REGEX.test(this.email.trim())) {
-    this.errors['email'] = 'Please enter a valid email address.';
+    if (!this.email.trim()) {
+      this.errors['email'] = 'Email is required.';
+    } else if (!this.EMAIL_REGEX.test(this.email.trim())) {
+      this.errors['email'] = 'Please enter a valid email address.';
+    }
+
+    if (!this.name.trim()) {
+      this.errors['name'] = 'Name is required.';
     }
 
     if (!this.password) {
@@ -120,11 +121,8 @@ isValidEmail(): boolean {
       return;
     }
 
-    const regex =
-      /^[A-Za-z0-9._%+-]+@(gmail|yahoo|hotmail|outlook)\.com$/;
-
-    if (!regex.test(email)) {
-      this.errors['email'] = 'Invalid email address';
+    if (!this.EMAIL_REGEX.test(email)) {
+      this.errors['email'] = 'Please enter a valid email address';
     }
 
 }

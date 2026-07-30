@@ -44,9 +44,14 @@
               type="email"
               [(ngModel)]="email"
               name="email"
+              (input)="onEmailChange()"
+              [class.border-red-300]="emailError"
               class="input-field"
               placeholder="you@example.com"
               autocomplete="email">
+            @if (emailError) {
+              <p class="text-red-500 text-xs mt-1 animate-shake">{{ emailError }}</p>
+            }
           </div>
 
           <div class="mb-6">
@@ -112,7 +117,7 @@
 
         <p class="text-center text-sm text-gray-500">
           Don't have an account?
-          <a routerLink="/signup" class="text-secondary font-semibold hover:underline ml-1">Sign up free</a>
+          <a routerLink="/signup" (click)="navigateToSignup($event)" class="text-secondary font-semibold hover:underline ml-1">Sign up free</a>
         </p>
 
       </div>

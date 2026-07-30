@@ -76,7 +76,7 @@ export class Header {
   }
 
   logout() {
-    this.auth.logout();
     this.showUserMenu = false;
+    this.auth.logout();
   }
 }

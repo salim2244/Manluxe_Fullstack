@@ -25,13 +25,49 @@ export class Login {
   showPassword = false;
   loading      = false;
   error        = '';
+  emailError   = '';
+
+  // General email validation pattern - accepts any valid email format
+  private readonly EMAIL_REGEX = 
+    /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/i;
+
+  isValidEmail(): boolean {
+    return this.EMAIL_REGEX.test(this.email.trim());
+  }
+
+  onEmailChange(): void {
+    const email = this.email.trim().toLowerCase();
+    this.emailError = '';
+
+    if (email === '') {
+      return;
+    }
+
+    if (!this.EMAIL_REGEX.test(email)) {
+      this.emailError = 'Please enter a valid email address';
+    }
+  }
+
+  navigateToSignup(event: Event) {
+    event.preventDefault();
+    event.stopPropagation();
+    this.router.navigate(['/signup']);
+  }
 
   submit() {
     this.error = '';
+    this.emailError = '';
+    
     if (!this.email || !this.password) {
       this.error = 'Please fill in all fields.';
       return;
     }
+
+    if (!this.isValidEmail()) {
+      this.emailError = 'Please enter a valid email address';
+      return;
+    }
+
     this.loading = true;
     this.auth.login({ email: this.email, password: this.password }).subscribe({
       next: (res) => {

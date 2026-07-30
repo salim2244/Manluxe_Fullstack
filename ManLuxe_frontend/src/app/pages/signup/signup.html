@@ -76,7 +76,6 @@
             <label class="form-label">Full Name <span class="required-star">*</span></label>
             <input type="text" [(ngModel)]="name" name="name"
               class="input-field" [class.input-error]="errors['name']"
-              [class.input-ok]="name.trim() && !errors['name']"
               placeholder="Your full name" autocomplete="name">
             @if (errors['name']) {
               <p class="field-error"><span>⚠</span> {{ errors['name'] }}</p>
@@ -84,41 +83,28 @@
           </div>
 
           <!-- Email -->
-
           <div class="mb-4">
-
-  <label class="form-label">
-    Email <span class="required-star">*</span>
-  </label>
-
-  <div class="relative">
-
-    <input
-    type="email"
-    name="email"
-    [(ngModel)]="email"
-    (ngModelChange)="onEmailChange()"
-    class="input-field"
-    [class.input-error]="errors['email']"
-    placeholder="name@gmail.com"
-    autocomplete="email">
-
-    @if(errors['email']) {
-    <p class="field-error">
-        {{ errors['email'] }}
-    </p>
-  }
-
-  </div>
-
-  @if(errors['email']){
-    <p class="field-error">
-      <span>⚠</span>
-      {{ errors['email'] }}
-    </p>
-  }
-
-</div>
+            <label class="form-label">
+              Email <span class="required-star">*</span>
+            </label>
+            <div class="relative">
+              <input
+                type="email"
+                name="email"
+                [(ngModel)]="email"
+                (ngModelChange)="onEmailChange()"
+                class="input-field"
+                [class.input-error]="errors['email']"
+                placeholder="name@gmail.com"
+                autocomplete="email">
+            </div>
+            @if(errors['email']) {
+              <p class="field-error">
+                <span>⚠</span>
+                {{ errors['email'] }}
+              </p>
+            }
+          </div>
 
           <!-- Password -->
           <div class="mb-4">
@@ -127,7 +113,6 @@
               <input [type]="showPassword ? 'text' : 'password'"
                 [(ngModel)]="password" name="password"
                 class="input-field pr-10" [class.input-error]="errors['password']"
-                [class.input-ok]="password.length >= 6 && !errors['password']"
                 placeholder="Min. 6 characters" autocomplete="new-password">
               <button type="button" (click)="showPassword = !showPassword" class="eye-btn">
                 {{ showPassword ? '🙈' : '👁️' }}
@@ -135,28 +120,6 @@
             </div>
             @if (errors['password']) {
               <p class="field-error"><span>⚠</span> {{ errors['password'] }}</p>
-            }
-            <!-- password strength bar -->
-            @if (password) {
-              <div class="mt-1.5 flex gap-1">
-                <div class="h-1 flex-1 rounded-full transition-all"
-                  [class.bg-red-400]="password.length < 6"
-                  [class.bg-yellow-400]="password.length >= 6 && password.length < 10"
-                  [class.bg-green-400]="password.length >= 10"></div>
-                <div class="h-1 flex-1 rounded-full transition-all"
-                  [class.bg-yellow-400]="password.length >= 6 && password.length < 10"
-                  [class.bg-green-400]="password.length >= 10"
-                  [class.bg-gray-100]="password.length < 6"></div>
-                <div class="h-1 flex-1 rounded-full transition-all"
-                  [class.bg-green-400]="password.length >= 10"
-                  [class.bg-gray-100]="password.length < 10"></div>
-              </div>
-              <p class="text-xs mt-0.5"
-                [class.text-red-400]="password.length < 6"
-                [class.text-yellow-500]="password.length >= 6 && password.length < 10"
-                [class.text-green-500]="password.length >= 10">
-                {{ password.length < 6 ? 'Too short' : password.length < 10 ? 'Good' : 'Strong' }}
-              </p>
             }
           </div>
 
@@ -167,7 +130,6 @@
               <input [type]="showConfirm ? 'text' : 'password'"
                 [(ngModel)]="confirmPassword" name="confirmPassword"
                 class="input-field pr-10" [class.input-error]="errors['confirmPassword']"
-                [class.input-ok]="confirmPassword && confirmPassword === password && !errors['confirmPassword']"
                 placeholder="Repeat your password" autocomplete="new-password">
               <button type="button" (click)="showConfirm = !showConfirm" class="eye-btn">
                 {{ showConfirm ? '🙈' : '👁️' }}

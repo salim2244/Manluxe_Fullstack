@@ -1,7 +1,8 @@
-import { Injectable, signal } from '@angular/core';
+import { Injectable, signal, inject, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { Observable, tap } from 'rxjs';
+import { Cart } from './cart';
 
 @Injectable({ providedIn: 'root' })
 export class Auth {
@@ -15,6 +16,8 @@ export class Auth {
   readonly userName = this._userName.asReadonly();
   readonly email = this._email.asReadonly();
   readonly role     = this._role.asReadonly();
+
+  private injector = inject(Injector);
 
   constructor(private http: HttpClient) {
 
@@ -110,6 +113,10 @@ export class Auth {
           this._role.set(role);
           this.loggedIn.set(true);
 
+          // Sync local cart to backend after login
+          const cart = this.injector.get(Cart);
+          cart.syncLocalCartToBackend();
+
         })
 
       );
@@ -123,6 +130,10 @@ export class Auth {
 
   logout(): void {
 
+    // Clear cart when user logs out
+    const cart = this.injector.get(Cart);
+    cart.clear();
+
     localStorage.removeItem('token');
     localStorage.removeItem('userName');
     localStorage.removeItem('userEmail');
@@ -131,7 +142,11 @@ export class Auth {
 
     this._userName.set('');
     this._role.set('');
+    this._email.set('');
     this.loggedIn.set(false);
+
+    // Redirect to home page
+    window.location.href = '/';
 
   }
 
