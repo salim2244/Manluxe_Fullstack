@@ -1,0 +1,210 @@
+<!-- ── TRENDING MARQUEE (only on home/all view) ─────────────────────────── -->
+@if (!searchQuery && category === 'all') {
+  <div class="bg-primary text-white py-2 overflow-hidden">
+    <div class="flex gap-8 animate-pulse-slow whitespace-nowrap text-xs font-medium tracking-widest uppercase px-4">
+      <span>🔥 Trending Now</span>
+      <span>·</span>
+      <span>New Arrivals</span>
+      <span>·</span>
+      <span>Up to 40% Off</span>
+      <span>·</span>
+      <span>Free Shipping ₹999+</span>
+      <span>·</span>
+      <span>Men's &amp; Women's</span>
+      <span>·</span>
+      <span>Premium Brands</span>
+    </div>
+  </div>
+}
+
+<!-- ── CATEGORY SHOWCASE (only on home/all view) ───────────────────────── -->
+@if (!searchQuery && category === 'all') {
+  <section class="py-14 px-4 bg-gray-50">
+    <div class="container mx-auto">
+      <div class="grid md:grid-cols-2 gap-6">
+
+        <!-- Men's card -->
+        <div (click)="categorySelect.emit('mens')"
+             class="relative rounded-3xl overflow-hidden h-72 group cursor-pointer">
+          <img src="/images/men-shirt.jpg" alt="Men's Collection"
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+          <div class="absolute bottom-6 left-6">
+            <p class="text-white/70 text-sm font-medium mb-1">Explore</p>
+            <h3 class="text-white text-3xl font-display font-bold mb-3">Men's Collection</h3>
+            <span class="inline-block bg-white text-primary text-sm font-semibold px-5 py-2 rounded-full hover:bg-secondary hover:text-white transition-all">
+              Shop Now →
+            </span>
+          </div>
+        </div>
+
+        <!-- Women's card -->
+        <div (click)="categorySelect.emit('womens')"
+             class="relative rounded-3xl overflow-hidden h-72 group cursor-pointer">
+          <img src="/images/product-dress.jpg" alt="Women's Collection"
+               class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+          <div class="absolute bottom-6 left-6">
+            <p class="text-white/70 text-sm font-medium mb-1">Explore</p>
+            <h3 class="text-white text-3xl font-display font-bold mb-3">Women's Collection</h3>
+            <span class="inline-block bg-white text-primary text-sm font-semibold px-5 py-2 rounded-full hover:bg-secondary hover:text-white transition-all">
+              Shop Now →
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── TRENDING SECTION ──────────────────────────────────────────────── -->
+  <section class="py-14 px-4">
+    <div class="container mx-auto">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <p class="text-secondary text-sm font-semibold uppercase tracking-widest mb-1">What's Hot</p>
+          <h2 class="section-title">Trending Now 🔥</h2>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        @for (product of trendingProducts; track product.id) {
+          <app-product-card [product]="product"></app-product-card>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FEATURE BANNER ────────────────────────────────────────────────── -->
+  <section class="py-10 px-4 bg-primary text-white">
+    <div class="container mx-auto">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+        <div class="flex flex-col items-center gap-2">
+          <span class="text-3xl">🚚</span>
+          <p class="font-semibold text-sm">Free Shipping</p>
+          <p class="text-xs text-gray-400">On orders above ₹999</p>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+          <span class="text-3xl">↩️</span>
+          <p class="font-semibold text-sm">Easy Returns</p>
+          <p class="text-xs text-gray-400">30-day return policy</p>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+          <span class="text-3xl">🔒</span>
+          <p class="font-semibold text-sm">Secure Payment</p>
+          <p class="text-xs text-gray-400">100% safe checkout</p>
+        </div>
+        <div class="flex flex-col items-center gap-2">
+          <span class="text-3xl">🎁</span>
+          <p class="font-semibold text-sm">Gift Wrapping</p>
+          <p class="text-xs text-gray-400">Available on request</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── MEN'S PICKS ───────────────────────────────────────────────────── -->
+  <section class="py-14 px-4 bg-gray-50">
+    <div class="container mx-auto">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <p class="text-secondary text-sm font-semibold uppercase tracking-widest mb-1">For Him</p>
+          <h2 class="section-title">Men's Picks 👔</h2>
+        </div>
+        <button (click)="categorySelect.emit('mens')"
+          class="text-sm font-semibold text-secondary hover:underline">
+          View All →
+        </button>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        @for (product of mensProducts; track product.id) {
+          <app-product-card [product]="product"></app-product-card>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- ── WOMEN'S PICKS ─────────────────────────────────────────────────── -->
+  <section class="py-14 px-4">
+    <div class="container mx-auto">
+      <div class="flex items-end justify-between mb-8">
+        <div>
+          <p class="text-secondary text-sm font-semibold uppercase tracking-widest mb-1">For Her</p>
+          <h2 class="section-title">Women's Picks 👗</h2>
+        </div>
+        <button (click)="categorySelect.emit('womens')"
+          class="text-sm font-semibold text-secondary hover:underline">
+          View All →
+        </button>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        @for (product of womensProducts; track product.id) {
+          <app-product-card [product]="product"></app-product-card>
+        }
+      </div>
+    </div>
+  </section>
+}
+
+<!-- ── FILTERED / SEARCH VIEW ─────────────────────────────────────────── -->
+@if (searchQuery || category !== 'all') {
+  <section class="py-14 px-4">
+    <div class="container mx-auto">
+
+      <!-- Title + back to all -->
+      <div class="flex items-start justify-between mb-8 gap-4">
+        <div>
+          <h2 class="section-title mb-1">{{ sectionTitle }}</h2>
+          <p class="text-gray-500 text-sm">{{ filteredProducts.length }} items found</p>
+        </div>
+        @if (!searchQuery) {
+          <button
+            (click)="categorySelect.emit('all')"
+            class="shrink-0 text-sm font-semibold text-secondary border border-secondary rounded-full px-4 py-2 hover:bg-secondary hover:text-white transition-all">
+            ← View All
+          </button>
+        }
+      </div>
+
+      <!-- Tabs -->
+      <div class="flex gap-2 mb-6 flex-wrap">
+        @for (tab of [['all','All'],['trending','🔥 Trending'],['new','✨ New'],['featured','⭐ Featured']]; track tab[0]) {
+          <button
+            (click)="setTab($any(tab[0]))"
+            [class.bg-primary]="activeTab === tab[0]"
+            [class.text-white]="activeTab === tab[0]"
+            [class.border-primary]="activeTab === tab[0]"
+            class="px-4 py-2 rounded-full text-sm font-medium border border-gray-200 text-gray-600 hover:border-primary hover:text-primary transition-all">
+            {{ tab[1] }}
+          </button>
+        }
+      </div>
+
+      <!-- Subcategory pills -->
+      <div class="flex gap-2 mb-8 flex-wrap">
+        @for (sub of subcategories; track sub) {
+          <button
+            (click)="activeSub = sub"
+            [class.bg-secondary]="activeSub === sub"
+            [class.text-white]="activeSub === sub"
+            class="px-3 py-1.5 rounded-full text-xs font-medium border border-gray-200 text-gray-500 hover:border-secondary hover:text-secondary transition-all capitalize">
+            {{ sub }}
+          </button>
+        }
+      </div>
+
+      <!-- Grid -->
+      @if (filteredProducts.length) {
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+          @for (product of filteredProducts; track product.id) {
+            <app-product-card [product]="product"></app-product-card>
+          }
+        </div>
+      } @else {
+        <div class="text-center py-20">
+          <p class="text-5xl mb-4">🔍</p>
+          <p class="text-xl font-semibold text-gray-700 mb-2">No products found</p>
+          <p class="text-gray-400">Try a different search or category</p>
+        </div>
+      }
+    </div>
+  </section>
+}

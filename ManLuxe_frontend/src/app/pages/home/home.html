@@ -1,0 +1,17 @@
+<app-header
+  [searchQuery]="searchQuery"
+  (searchChange)="onSearchChange($event)"
+  (categoryChange)="onCategoryChange($event)">
+</app-header>
+
+<app-hero (categorySelect)="onCategoryChange($event)"></app-hero>
+
+<div id="product-grid-section">
+  <app-product-grid
+    [searchQuery]="searchQuery"
+    [category]="category"
+    (categorySelect)="onCategoryChange($event)">
+  </app-product-grid>
+</div>
+
+<app-footer></app-footer>

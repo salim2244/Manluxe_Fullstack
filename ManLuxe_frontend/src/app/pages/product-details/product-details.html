@@ -1,0 +1,234 @@
+﻿<app-header>
+</app-header>
+
+@if (loading) {
+  <div class="min-h-screen flex items-center justify-center">
+    <p class="text-gray-400 text-lg">Loading product...</p>
+  </div>
+}
+
+@if (!loading && product) {
+<main class="min-h-screen bg-gray-50">
+
+  <!-- Breadcrumb -->
+  <div class="bg-white border-b border-gray-100">
+    <div class="container mx-auto px-4 py-3 flex items-center gap-2 text-xs text-gray-400">
+      <a routerLink="/" class="hover:text-secondary transition-colors">Home</a>
+      <span>›</span>
+      <span class="capitalize">{{ product.categoryName }}</span>
+      <span>›</span>
+      <span class="text-gray-700 font-medium truncate max-w-[200px]">{{ product.name }}</span>
+    </div>
+  </div>
+
+  <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <div class="grid lg:grid-cols-2 gap-10 mb-16">
+
+      <!-- Image -->
+      <div class="rounded-2xl overflow-hidden bg-white shadow-sm aspect-[4/5]">
+        <img [src]="product.imageUrl" [alt]="product.name" class="w-full h-full object-cover">
+      </div>
+
+      <!-- Details -->
+      <div class="flex flex-col">
+        <p class="text-secondary text-sm font-semibold uppercase tracking-widest mb-1">{{ product.brand }}</p>
+        <h1 class="text-2xl md:text-3xl font-display font-bold text-primary leading-tight mb-3">{{ product.name }}</h1>
+        <p class="text-sm text-gray-400 mb-4">{{ product.categoryName }}</p>
+
+        <!-- Stock -->
+        <span class="inline-block text-xs px-2 py-0.5 rounded-full font-medium mb-4 w-fit"
+          [class.bg-green-100]="inStock" [class.text-green-700]="inStock"
+          [class.bg-red-100]="!inStock" [class.text-red-600]="!inStock">
+          @if (availableSizes.length) {
+
+              {{ inStock ? '✓ Select a size' : '✗ Out of Stock' }}
+
+          } @else {
+
+              {{ inStock ? '✓ In Stock (' + product.stock + ')' : '✗ Out of Stock' }}
+
+          }
+
+        </span>
+
+        <!-- Price -->
+        <div class="flex items-baseline gap-3 mb-6 pb-6 border-b border-gray-100">
+          <span class="text-3xl font-bold text-primary">₹{{ discountedPrice | number }}</span>
+          @if (product.discount > 0) {
+            <span class="text-lg text-gray-400 line-through">₹{{ product.price | number }}</span>
+            <span class="text-sm font-bold text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
+              {{ product.discount }}% OFF
+            </span>
+          }
+        </div>
+
+
+        <!-- CTA -->
+        <div class="flex flex-col gap-4 mb-6">
+
+          @if (availableSizes.length) {
+
+            <div>
+
+              <p class="font-semibold text-gray-700 mb-3">
+                Select Size
+              </p>
+
+              <div class="flex gap-3 flex-wrap">
+
+                @for (size of availableSizes; track size.id) {
+
+                  <button
+                    type="button"
+                    (click)="size.stock > 0 && (selectedSize = size.size)"
+                    [disabled]="size.stock === 0"
+                    class="w-14 h-14 rounded-lg border-2 flex flex-col items-center justify-center font-semibold transition-all"
+
+                    [class.bg-primary]="selectedSize === size.size"
+                    [class.text-white]="selectedSize === size.size"
+                    [class.border-primary]="selectedSize === size.size"
+
+                    [class.border-gray-300]="selectedSize !== size.size"
+                    [class.opacity-40]="size.stock === 0"
+                    [class.cursor-not-allowed]="size.stock === 0">
+
+                    <span>{{ size.size }}</span>
+
+                    @if (size.stock === 0) {
+                      <span class="text-[10px]">
+                        Out
+                      </span>
+                    }
+
+                  </button>
+
+                }
+
+              </div>
+
+              @if (selectedSize) {
+
+                <p class="mt-3 text-sm text-green-600">
+                  Selected Size: <strong>{{ selectedSize }}</strong>
+                </p>
+
+              }
+
+            </div>
+
+          }
+
+          @if (alreadyInCart){
+
+            <button
+              (click)="goToCart()"
+              class="btn-primary py-4 text-base">
+
+              🛒 Go To Cart
+
+            </button>
+
+          } @else {
+
+            <button
+              (click)="addToCart()"
+              [disabled]="!inStock || (availableSizes.length && !selectedSize)"
+              class="btn-primary py-4 text-base disabled:opacity-50">
+
+              🛍️ Add To Cart
+
+            </button>
+
+          }
+
+        </div>
+
+        <!-- Trust -->
+        <div class="grid grid-cols-3 gap-3 p-4 bg-gray-50 rounded-2xl text-center">
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-xl">🚚</span>
+            <p class="text-xs font-medium text-gray-600">Free Delivery</p>
+            <p class="text-xs text-gray-400">Above ₹999</p>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-xl">↩️</span>
+            <p class="text-xs font-medium text-gray-600">Easy Returns</p>
+            <p class="text-xs text-gray-400">30 days</p>
+          </div>
+          <div class="flex flex-col items-center gap-1">
+            <span class="text-xl">🔒</span>
+            <p class="text-xs font-medium text-gray-600">Secure Pay</p>
+            <p class="text-xs text-gray-400">100% safe</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 mb-16">
+      <div class="flex border-b border-gray-100">
+        <button (click)="activeTab = 'description'"
+          [class.border-b-2]="activeTab === 'description'"
+          [class.border-secondary]="activeTab === 'description'"
+          [class.text-secondary]="activeTab === 'description'"
+          class="px-6 py-4 text-sm -mb-px">Description</button>
+        <button (click)="activeTab = 'details'"
+          [class.border-b-2]="activeTab === 'details'"
+          [class.border-secondary]="activeTab === 'details'"
+          [class.text-secondary]="activeTab === 'details'"
+          class="px-6 py-4 text-sm -mb-px">Details</button>
+      </div>
+      <div class="p-6">
+        @if (activeTab === 'description') {
+          <p class="text-gray-600 leading-relaxed">{{ product.description }}</p>
+        }
+        @if (activeTab === 'details') {
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="space-y-3">
+              <div class="flex justify-between py-2 border-b border-gray-50 text-sm">
+                <span class="text-gray-500">Brand</span>
+                <span class="font-medium">{{ product.brand }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-50 text-sm">
+                <span class="text-gray-500">Category</span>
+                <span class="font-medium">{{ product.categoryName }}</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-50 text-sm">
+                <span class="text-gray-500">Discount</span>
+                <span class="font-medium">{{ product.discount }}%</span>
+              </div>
+            </div>
+            <div class="space-y-3">
+              <div class="flex justify-between py-2 border-b border-gray-50 text-sm">
+                <span class="text-gray-500">Stock</span>
+                <span class="font-medium">{{ product.stock }} units</span>
+              </div>
+              <div class="flex justify-between py-2 border-b border-gray-50 text-sm">
+                <span class="text-gray-500">Status</span>
+                <span class="font-medium" [class.text-green-600]="inStock" [class.text-red-500]="!inStock">
+                  {{ inStock ? 'In Stock' : 'Out of Stock' }}
+                </span>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Related -->
+    @if (relatedProducts.length) {
+      <div>
+        <p class="text-secondary text-sm font-semibold uppercase tracking-widest mb-1">You may also like</p>
+        <h2 class="section-title mb-6">Related Products</h2>
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          @for (p of relatedProducts; track p.id) {
+            <app-product-card [product]="p"></app-product-card>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</main>
+}
+
+<app-footer></app-footer>

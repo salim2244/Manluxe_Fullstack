@@ -1,0 +1,152 @@
+﻿<!-- Backdrop -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
+     (click)="close.emit()">
+
+  <!-- Modal -->
+  <div class="bg-white rounded-3xl w-full max-w-md overflow-hidden shadow-2xl animate-slide-up"
+       (click)="$event.stopPropagation()">
+
+    <!-- Header strip -->
+    <div class="relative h-24 bg-gradient-to-br from-primary via-gray-800 to-secondary overflow-hidden">
+      <div class="absolute inset-0 opacity-10"
+        style="background-image:repeating-linear-gradient(45deg,transparent,transparent 10px,rgba(255,255,255,.1) 10px,rgba(255,255,255,.1) 20px)">
+      </div>
+      <div class="absolute inset-0 flex flex-col items-center justify-center text-white">
+        <span class="text-2xl font-display font-bold tracking-tight">LUXE<span class="text-accent">WEAR</span></span>
+        <p class="text-xs text-white/60 mt-0.5 tracking-widest uppercase">
+          {{ isLogin ? 'Welcome back' : 'Join the community' }}
+        </p>
+      </div>
+      <button (click)="close.emit()"
+        class="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/20 hover:bg-white/40
+               flex items-center justify-center text-white text-xs transition-all">✕</button>
+    </div>
+
+    <!-- Body -->
+    <div class="p-6">
+
+      <!-- Tab switcher -->
+      <div class="flex bg-gray-100 rounded-2xl p-1 mb-5">
+        <button (click)="setTab(true)"
+          [class.bg-white]="isLogin" [class.shadow-sm]="isLogin"
+          [class.text-primary]="isLogin" [class.font-semibold]="isLogin"
+          [class.text-gray-400]="!isLogin"
+          class="flex-1 py-2.5 rounded-xl text-sm transition-all duration-200">Sign In</button>
+        <button (click)="setTab(false)"
+          [class.bg-white]="!isLogin" [class.shadow-sm]="!isLogin"
+          [class.text-primary]="!isLogin" [class.font-semibold]="!isLogin"
+          [class.text-gray-400]="isLogin"
+          class="flex-1 py-2.5 rounded-xl text-sm transition-all duration-200">Create Account</button>
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="submit()" [class.opacity-40]="transitioning"
+            class="transition-opacity duration-150" novalidate>
+
+        <!-- REGISTER SUCCESS -->
+        @if (registerDone) {
+          <div class="flex flex-col items-center py-6 text-center">
+            <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center text-xl mb-3 animate-bounce-in">✅</div>
+            <p class="font-bold text-gray-800 text-sm mb-1">Account created!</p>
+            <p class="text-xs text-gray-400 mb-3">Switching to sign in...</p>
+            <div class="w-5 h-5 border-2 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
+          </div>
+        }
+
+        @if (!registerDone) {
+
+          <!-- Name (register only) -->
+          @if (!isLogin) {
+            <div class="mb-3">
+              <label class="modal-label">Full Name <span class="text-red-400 text-xs">*</span></label>
+              <input type="text" [(ngModel)]="name" name="name"
+                class="input-field" placeholder="Your full name" autocomplete="name">
+            </div>
+          }
+
+          <!-- Email -->
+          <div class="mb-3">
+            <label class="modal-label">Email <span class="text-red-400 text-xs">*</span></label>
+            <div class="relative">
+              <input type="email" [(ngModel)]="email" name="email"
+                class="input-field pr-8"
+                [class.modal-input-ok]="emailValid"
+                placeholder="name@gmail.com" autocomplete="email">
+              @if (emailValid) {
+                <span class="absolute right-3 top-1/2 -translate-y-1/2 text-green-500 text-sm">✓</span>
+              }
+            </div>
+            @if (emailHint) {
+              <p class="text-xs text-amber-500 mt-1 flex items-center gap-1">
+                <span>💡</span> {{ emailHint }}
+              </p>
+            }
+          </div>
+
+          <!-- Password -->
+          <div class="mb-4">
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="modal-label">Password <span class="text-red-400 text-xs">*</span></label>
+              @if (isLogin) {
+                <button type="button" class="text-xs text-secondary hover:underline">Forgot?</button>
+              }
+            </div>
+            <div class="relative">
+              <input [type]="showPassword ? 'text' : 'password'"
+                [(ngModel)]="password" name="password"
+                class="input-field pr-10" placeholder="••••••••"
+                autocomplete="current-password">
+              <button type="button" (click)="showPassword = !showPassword"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 text-sm">
+                {{ showPassword ? '🙈' : '👁️' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- ── INLINE BANNER (right above submit button) ── -->
+          @if (banner) {
+            <div class="modal-banner modal-banner--error mb-4">
+              <span class="modal-banner__icon">⚠️</span>
+              <span class="modal-banner__text">{{ banner.text }}</span>
+              <button type="button" (click)="banner = null" class="modal-banner__close">✕</button>
+            </div>
+          }
+
+          <!-- Submit -->
+          <button type="submit" [disabled]="loading"
+            class="w-full btn-primary py-3 text-sm disabled:opacity-60 disabled:cursor-not-allowed
+                   flex items-center justify-center gap-2">
+            @if (loading) {
+              <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+              <span>{{ isLogin ? 'Signing in...' : 'Creating account...' }}</span>
+            } @else {
+              <span>{{ isLogin ? 'Sign In →' : 'Create Account →' }}</span>
+            }
+          </button>
+
+        }
+
+      </form>
+
+      <!-- Divider -->
+      <div class="flex items-center gap-3 my-4">
+        <div class="flex-1 h-px bg-gray-100"></div>
+        <span class="text-xs text-gray-400">or</span>
+        <div class="flex-1 h-px bg-gray-100"></div>
+      </div>
+
+      <!-- Social -->
+      <div class="grid grid-cols-2 gap-2">
+        <button class="flex items-center justify-center gap-2 border border-gray-200 rounded-xl
+                       py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all">
+          <span class="font-bold text-blue-600">G</span> Google
+        </button>
+        <button class="flex items-center justify-center gap-2 border border-gray-200 rounded-xl
+                       py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all">
+          <span class="font-bold text-blue-800">f</span> Facebook
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

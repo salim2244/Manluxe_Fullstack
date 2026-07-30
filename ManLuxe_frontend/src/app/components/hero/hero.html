@@ -1,0 +1,107 @@
+<section
+  class="relative h-[85vh] min-h-[500px] overflow-hidden bg-primary"
+  (mouseenter)="pause()"
+  (mouseleave)="resume()">
+
+  <!-- ── Slides ─────────────────────────────────────────────────────────── -->
+  @for (slide of slides; track slide.category; let i = $index) {
+    <div
+      class="absolute inset-0 transition-opacity duration-700"
+      [class.opacity-100]="current === i"
+      [class.opacity-0]="current !== i">
+      <img
+        [src]="slide.image"
+        alt=""
+        class="w-full h-full object-cover scale-105 transition-transform duration-[8000ms]"
+        [class.scale-100]="current === i">
+      <div class="absolute inset-0 bg-gradient-to-r" [class]="slide.overlay"></div>
+    </div>
+  }
+
+  <!-- ── Slide content ──────────────────────────────────────────────────── -->
+  <div class="relative h-full flex items-center">
+    <div class="container mx-auto px-6 md:px-12">
+      <div class="max-w-xl">
+
+        <span class="inline-block bg-secondary text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-widest mb-4 animate-fade-in">
+          {{ slides[current].tag }}
+        </span>
+
+        <h1 class="text-4xl md:text-6xl font-display font-bold text-white leading-tight mb-4 whitespace-pre-line animate-slide-up">
+          {{ slides[current].title }}
+        </h1>
+
+        <p class="text-gray-200 text-lg mb-8 max-w-md animate-fade-in">
+          {{ slides[current].subtitle }}
+        </p>
+
+        <div class="flex flex-wrap gap-3 animate-fade-in">
+          <button
+            (click)="shop(slides[current].category)"
+            class="btn-primary text-base px-8 py-3.5">
+            {{ slides[current].cta }} →
+          </button>
+          <button
+            (click)="shop('all')"
+            class="border-2 border-white text-white px-8 py-3.5 rounded-full font-semibold hover:bg-white hover:text-primary transition-all">
+            View All
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Prev / Next arrows ─────────────────────────────────────────────── -->
+  <button (click)="prev()"
+    class="absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/20 hover:bg-white/50
+           backdrop-blur rounded-full flex items-center justify-center text-white text-xl
+           transition-all hover:scale-110">
+    ‹
+  </button>
+  <button (click)="next()"
+    class="absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 bg-white/20 hover:bg-white/50
+           backdrop-blur rounded-full flex items-center justify-center text-white text-xl
+           transition-all hover:scale-110">
+    ›
+  </button>
+
+  <!-- ── Dots + progress bar ────────────────────────────────────────────── -->
+  <div class="absolute bottom-16 left-1/2 -translate-x-1/2 flex items-center gap-3">
+    @for (slide of slides; track slide.category; let i = $index) {
+      <button
+        (click)="goTo(i)"
+        class="relative h-2 rounded-full overflow-hidden transition-all duration-300"
+        [class.w-10]="current === i"
+        [class.w-2]="current !== i"
+        [class.bg-white/30]="current !== i"
+        [class.bg-white/40]="current === i">
+        <!-- animated fill bar on active dot -->
+        @if (current === i) {
+          <span class="absolute inset-y-0 left-0 bg-secondary rounded-full progress-bar"></span>
+        }
+      </button>
+    }
+  </div>
+
+  <!-- ── Category quick links ───────────────────────────────────────────── -->
+  <div class="absolute bottom-0 left-0 right-0 bg-white/10 backdrop-blur-sm border-t border-white/20">
+    <div class="container mx-auto px-4 py-3 flex items-center justify-center gap-6 md:gap-12">
+      <button (click)="shop('mens')"
+        class="flex items-center gap-2 text-white text-sm font-medium hover:text-accent transition-colors">
+        <span class="text-xl">👔</span> Men's
+      </button>
+      <div class="w-px h-4 bg-white/30"></div>
+      <button (click)="shop('womens')"
+        class="flex items-center gap-2 text-white text-sm font-medium hover:text-accent transition-colors">
+        <span class="text-xl">👗</span> Women's
+      </button>
+      <div class="w-px h-4 bg-white/30"></div>
+      <button (click)="shop('all')"
+        class="flex items-center gap-2 text-white text-sm font-medium hover:text-accent transition-colors">
+        <span class="text-xl">🔥</span> Trending
+      </button>
+    </div>
+  </div>
+
+</section>

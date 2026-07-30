@@ -1,0 +1,157 @@
+<header class="sticky top-0 z-50 bg-white/95 backdrop-blur border-b border-gray-100 shadow-sm">
+
+  <!-- Top bar -->
+  <div class="bg-primary text-white text-xs text-center py-1.5 tracking-widest font-medium">
+    FREE SHIPPING ON ORDERS ABOVE ₹999 &nbsp;|&nbsp; USE CODE: <span class="text-accent font-bold">LUXE20</span>
+  </div>
+
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16 gap-4">
+
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center gap-2 shrink-0">
+        <span class="text-2xl font-display font-bold text-primary tracking-tight">
+          LUXE<span class="text-secondary">WEAR</span>
+        </span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-1">
+        @for (cat of categories; track cat.id) {
+          <button
+            (click)="selectCategory(cat.id)"
+            [class.text-secondary]="activeCategory === cat.id"
+            [class.font-semibold]="activeCategory === cat.id"
+            class="px-4 py-2 rounded-full text-sm font-medium text-gray-600 hover:text-secondary hover:bg-red-50 transition-all">
+            {{ cat.label }}
+          </button>
+        }
+        <a routerLink="/trending"
+           class="px-4 py-2 rounded-full text-sm font-medium text-gray-600 hover:text-secondary hover:bg-red-50 transition-all">
+          🔥 Trending
+        </a>
+      </nav>
+
+      <!-- Search -->
+      <div class="hidden lg:flex flex-1 max-w-xs relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <input
+          class="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-full
+                 focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary transition-all"
+          placeholder="Search styles..."
+          [value]="searchQuery"
+          (input)="onSearch($any($event.target).value)">
+      </div>
+
+      <!-- Actions -->
+      <div class="flex items-center gap-2">
+        @if (auth.isLoggedIn()) {
+          <!-- User account dropdown -->
+          <div class="relative">
+            <button (click)="toggleUserMenu()"
+              class="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-secondary transition-colors px-3 py-2 rounded-full hover:bg-red-50">
+              <span>👤</span>
+              <span class="hidden sm:block">{{ auth.userName() }}</span>
+              <span class="text-xs">▼</span>
+            </button>
+
+            <!-- User dropdown menu -->
+            @if (showUserMenu) {
+              <div class="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 animate-fade-in">
+                @if (auth.isAdmin()) {
+                  <a routerLink="/admin" (click)="showUserMenu = false"
+                    class="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-secondary transition-colors">
+                    <span>⚙️</span>
+                    <span>Admin Dashboard</span>
+                  </a>
+                }
+                <button (click)="goToOrders()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-secondary transition-colors text-left">
+                  <span>📦</span>
+                  <span>My Orders</span>
+                </button>
+                <button (click)="goToWishlist()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-secondary transition-colors text-left">
+                  <span>❤️</span>
+                  <span>Wishlist</span>
+                </button>
+                <button (click)="goToAccount()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-red-50 hover:text-secondary transition-colors text-left">
+                  <span>👤</span>
+                  <span>Account Details</span>
+                </button>
+                <div class="border-t border-gray-100 my-2"></div>
+                <button (click)="logout()"
+                  class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors text-left">
+                  <span>🚪</span>
+                  <span>Logout</span>
+                </button>
+              </div>
+            }
+          </div>
+        } @else {
+          <button (click)="showAuth = true"
+            class="flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-secondary transition-colors px-3 py-2 rounded-full hover:bg-red-50">
+            <span>👤</span>
+            <span class="hidden sm:block">Account</span>
+          </button>
+        }
+
+        <!-- Cart button — use button + navigate to prevent anchor scroll-jump -->
+        <button
+          (click)="goToCart()"
+          class="relative flex items-center gap-1.5 text-sm font-medium text-gray-700 hover:text-secondary transition-colors px-3 py-2 rounded-full hover:bg-red-50">
+          <span>🛍️</span>
+          <span class="hidden sm:block">Cart</span>
+          @if (cart.totalItems() > 0) {
+            <span class="absolute -top-0.5 -right-0.5 bg-secondary text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold">
+              {{ cart.totalItems() }}
+            </span>
+          }
+        </button>
+
+        <!-- Mobile menu toggle -->
+        <button class="md:hidden p-2 rounded-full hover:bg-gray-100 transition-colors"
+                (click)="isMenuOpen = !isMenuOpen">
+          <span class="text-lg">{{ isMenuOpen ? '✕' : '☰' }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile search -->
+    <div class="lg:hidden pb-3">
+      <div class="relative">
+        <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">🔍</span>
+        <input
+          class="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-200 rounded-full
+                 focus:outline-none focus:ring-2 focus:ring-secondary/30 focus:border-secondary"
+          placeholder="Search styles..."
+          [value]="searchQuery"
+          (input)="onSearch($any($event.target).value)">
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Nav -->
+  @if (isMenuOpen) {
+    <div class="md:hidden border-t border-gray-100 bg-white px-4 py-3 flex flex-col gap-1 animate-fade-in">
+      @for (cat of categories; track cat.id) {
+        <button
+          (click)="selectCategory(cat.id)"
+          [class.text-secondary]="activeCategory === cat.id"
+          [class.font-semibold]="activeCategory === cat.id"
+          class="text-left px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-secondary transition-all">
+          {{ cat.label }}
+        </button>
+      }
+      <a routerLink="/trending" (click)="isMenuOpen = false"
+         class="px-4 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-red-50 hover:text-secondary transition-all">
+        🔥 Trending
+      </a>
+    </div>
+  }
+</header>
+
+@if (showAuth) {
+  <app-auth-modal (close)="showAuth = false"></app-auth-modal>
+}

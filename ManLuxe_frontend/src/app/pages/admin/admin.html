@@ -1,0 +1,544 @@
+﻿<div class="admin-shell">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" [class.sidebar-collapsed]="!sidebarOpen()">
+    <div class="sidebar-header">
+      @if (sidebarOpen()) { <span class="logo">LUXEWEAR</span> }
+      <button class="toggle-btn" (click)="sidebarOpen.set(!sidebarOpen())">
+        {{ sidebarOpen() ? '◀' : '▶' }}
+      </button>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="nav-item" [class.active]="activeView() === 'dashboard'" (click)="navigate('dashboard')">
+        <span class="nav-icon">📊</span>
+        @if (sidebarOpen()) { <span class="nav-label">Dashboard</span> }
+      </button>
+      <button class="nav-item" [class.active]="activeView() === 'orders'" (click)="navigate('orders')">
+        <span class="nav-icon">📦</span>
+        @if (sidebarOpen()) { <span class="nav-label">Orders</span> }
+      </button>
+      <button class="nav-item" [class.active]="activeView() === 'customers'" (click)="navigate('customers')">
+        <span class="nav-icon">👥</span>
+        @if (sidebarOpen()) { <span class="nav-label">Customers</span> }
+      </button>
+      <button class="nav-item"
+        [class.active]="activeView() === 'products' || activeView() === 'add-product' || activeView() === 'edit-product'"
+        (click)="navigate('products')">
+        <span class="nav-icon">🛍️</span>
+        @if (sidebarOpen()) { <span class="nav-label">Products</span> }
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="nav-item logout-btn" (click)="logout()">
+        <span class="nav-icon">🚪</span>
+        @if (sidebarOpen()) { <span class="nav-label">Logout</span> }
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <h1 class="page-title">
+        @switch (activeView()) {
+          @case ('dashboard')    { Dashboard }
+          @case ('orders')       { Orders }
+          @case ('customers')    { Customers }
+          @case ('products')     { Products }
+          @case ('add-product')  { Add Product }
+          @case ('edit-product') { Edit Product }
+        }
+      </h1>
+      <span class="admin-badge">👤 Admin</span>
+    </header>
+
+    <!-- DASHBOARD -->
+    @if (activeView() === 'dashboard') {
+      <div class="view-content">
+        <div class="stats-grid">
+          <div class="stat-card stat-revenue">
+            <div class="stat-icon">💰</div>
+            <div class="stat-info">
+              <p class="stat-label">Total Revenue</p>
+              <p class="stat-value">{{ formatCurrency(totalRevenue) }}</p>
+            </div>
+          </div>
+          <div class="stat-card stat-orders">
+            <div class="stat-icon">📦</div>
+            <div class="stat-info">
+              <p class="stat-label">Total Orders</p>
+              <p class="stat-value">{{ totalOrders }}</p>
+            </div>
+          </div>
+          <div class="stat-card stat-customers">
+            <div class="stat-icon">👥</div>
+            <div class="stat-info">
+              <p class="stat-label">Customers</p>
+              <p class="stat-value">{{ totalCustomers }}</p>
+            </div>
+          </div>
+          <div class="stat-card stat-products">
+            <div class="stat-icon">🛍️</div>
+            <div class="stat-info">
+              <p class="stat-label">Products</p>
+              <p class="stat-value">{{ totalProducts }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">Recent Orders</h2>
+            <button class="btn-link" (click)="navigate('orders')">View all →</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Order ID</th><th>Customer</th><th>Date</th><th>Amount</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                @for (order of recentOrders; track order.id) {
+                  <tr>
+                    <td class="font-mono text-sm">#{{ order.id }}</td>
+                    <td>
+                      <div class="customer-cell">
+                        <span class="customer-avatar">{{ order.userName[0] }}</span>
+                        <div>
+                          <p class="font-medium">{{ order.userName }}</p>
+                          <p class="text-xs text-gray">{{ order.userEmail }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-sm text-gray">{{ formatDate(order.createdAt) }}</td>
+                    <td class="font-semibold">{{ formatCurrency(order.totalAmount) }}</td>
+                    <td><span class="badge" [ngClass]="statusColor(order.status)">{{ order.status }}</span></td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <button class="action-card" (click)="navigate('orders')">
+            <span class="action-icon">📦</span><span>Manage Orders</span>
+          </button>
+          <button class="action-card" (click)="navigate('customers')">
+            <span class="action-icon">👥</span><span>View Customers</span>
+          </button>
+          <button class="action-card" (click)="openAddProduct()">
+            <span class="action-icon">➕</span><span>Add Product</span>
+          </button>
+          <button class="action-card" (click)="navigate('products')">
+            <span class="action-icon">🛍️</span><span>Manage Products</span>
+          </button>
+        </div>
+      </div>
+    }
+
+    <!-- ORDERS -->
+    @if (activeView() === 'orders') {
+      <div class="view-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">All Orders</h2>
+            <div class="filters">
+              <input class="search-input" placeholder="Search orders..." [(ngModel)]="orderSearch">
+              <select class="filter-select" [(ngModel)]="orderStatusFilter">
+                <option value="all">All Status</option>
+                <option value="PENDING">Pending</option>
+                <option value="PROCESSING">Processing</option>
+                <option value="SHIPPED">Shipped</option>
+                <option value="DELIVERED">Delivered</option>
+                <option value="CANCELLED">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order ID</th><th>Customer</th><th>Items</th>
+                  <th>Date</th><th>Amount</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (order of filteredOrders; track order.id) {
+                  <tr [class.row-selected]="selectedOrder?.id === order.id">
+                    <td class="font-mono text-sm">#{{ order.id }}</td>
+                    <td>
+                      <div class="customer-cell">
+                        <span class="customer-avatar">{{ order.userName[0] }}</span>
+                        <div>
+                          <p class="font-medium">{{ order.userName }}</p>
+                          <p class="text-xs text-gray">{{ order.userEmail }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td class="text-sm text-gray">{{ order.items.length }} item(s)</td>
+                    <td class="text-sm text-gray">{{ formatDate(order.createdAt) }}</td>
+                    <td class="font-semibold">{{ formatCurrency(order.totalAmount) }}</td>
+                    <td>
+                      <select class="status-select" [ngClass]="statusColor(order.status)"
+                        [value]="order.status"
+                        (change)="updateOrderStatus(order.id, $any($event.target).value)">
+                        <option value="PENDING">Pending</option>
+                        <option value="PROCESSING">Processing</option>
+                        <option value="SHIPPED">Shipped</option>
+                        <option value="DELIVERED">Delivered</option>
+                        <option value="CANCELLED">Cancelled</option>
+                      </select>
+                    </td>
+                    <td>
+                      <div class="action-btns">
+                        <button class="btn-icon btn-view" title="View"
+                          (click)="selectedOrder = selectedOrder?.id === order.id ? null : order">👁</button>
+                      </div>
+                    </td>
+                  </tr>
+                  @if (selectedOrder?.id === order.id) {
+                    <tr class="detail-row">
+                      <td colspan="7">
+                        <div class="order-detail">
+                          <div class="detail-section">
+                            <h4>📧 Customer</h4>
+                            <p>{{ order.userName }} — {{ order.userEmail }}</p>
+                          </div>
+                          <div class="detail-section">
+                            <h4>📅 Updated</h4>
+                            <p>{{ formatDate(order.updatedAt) }}</p>
+                          </div>
+                          <div class="detail-section detail-items">
+                            <h4>🛍️ Items</h4>
+                            @for (item of order.items; track item.productId) {
+                              <div class="order-item-row">
+                                <img [src]="item.imageUrl" [alt]="item.productName" class="item-thumb">
+                                <div>
+                                  <p class="font-medium">{{ item.productName }}</p>
+                                  <p class="text-xs text-gray">{{ item.brand }}</p>
+                                </div>
+                                <span class="item-qty">×{{ item.quantity }}</span>
+                                <span class="item-price">{{ formatCurrency(item.price * item.quantity) }}</span>
+                              </div>
+                            }
+                          </div>
+                          <div class="detail-total">
+                            <span>Total</span>
+                            <span class="font-bold text-lg">{{ formatCurrency(order.totalAmount) }}</span>
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                }
+                @empty {
+                  <tr><td colspan="7" class="empty-row">No orders found.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- CUSTOMERS -->
+    @if (activeView() === 'customers') {
+      <div class="view-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">All Customers</h2>
+            <input class="search-input" placeholder="Search customers..." [(ngModel)]="customerSearch">
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr><th>Customer</th><th>Total Orders</th><th>Total Spent</th></tr>
+              </thead>
+              <tbody>
+                @for (c of customers; track c.id) {
+                  <tr>
+                    <td>
+                      <div class="customer-cell">
+                        <span class="customer-avatar">{{ c.name[0] }}</span>
+                        <div>
+                          <p class="font-medium">{{ c.name }}</p>
+                          <p class="text-xs text-gray">{{ c.email }}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="orders-badge">{{ c.orders }}</span></td>
+                    <td class="font-semibold">{{ formatCurrency(c.spent) }}</td>
+                  </tr>
+                }
+                @empty {
+                  <tr><td colspan="3" class="empty-row">No customers found.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- PRODUCTS -->
+    @if (activeView() === 'products') {
+      <div class="view-content">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">All Products</h2>
+            <div class="filters">
+              <input class="search-input" placeholder="Search products..." [(ngModel)]="productSearch">
+              <input class="search-input" placeholder="Filter by category..." [(ngModel)]="productCategoryFilter">
+              <button class="btn-primary" (click)="openAddProduct()">+ Add Product</button>
+            </div>
+          </div>
+          <div class="stock-summary">
+            <span class="stock-chip stock-total">Total: {{ productService.totalProducts() }}</span>
+            <span class="stock-chip stock-in">Active: {{ productService.inStockCount() }}</span>
+            <span class="stock-chip stock-out">Inactive: {{ productService.outOfStockCount() }}</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Product</th><th>Brand</th><th>Category</th>
+                  <th>Price</th><th>Discount</th><th>Stock</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (p of filteredProducts; track p.id) {
+                  <tr>
+                    <td>
+                      <div class="product-cell">
+                        <img [src]="p.imageUrl" [alt]="p.name" class="product-thumb">
+                        <p class="font-medium">{{ p.name }}</p>
+                      </div>
+                    </td>
+                    <td class="text-sm text-gray">{{ p.brand }}</td>
+                    <td><span class="cat-chip">{{ p.categoryName }}</span></td>
+                    <td class="font-semibold">{{ formatCurrency(p.price) }}</td>
+                    <td class="text-sm text-gray">{{ p.discount }}%</td>
+                    <td class="text-sm">{{ p.stock }}</td>
+                    <td>
+                      <button class="stock-toggle" [class.in-stock]="p.active" [class.out-stock]="!p.active"
+                        (click)="toggleActive(p.id)">
+                        {{ p.active ? 'Active' : 'Inactive' }}
+                      </button>
+                    </td>
+                    <td>
+                      <div class="action-btns">
+                        <button class="btn-icon btn-edit" title="Edit" (click)="openEditProduct(p)">✏️</button>
+                        <button class="btn-icon btn-delete" title="Delete" (click)="deleteProduct(p.id)">🗑</button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+                @empty {
+                  <tr><td colspan="8" class="empty-row">No products found.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- ADD / EDIT PRODUCT -->
+    @if (activeView() === 'add-product' || activeView() === 'edit-product') {
+      <div class="view-content">
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 class="card-title">{{ activeView() === 'add-product' ? 'Add New Product' : 'Edit Product' }}</h2>
+            <button class="btn-secondary" (click)="cancelForm()">← Back</button>
+          </div>
+          <form class="product-form" (ngSubmit)="saveProduct()">
+            <div class="form-grid">
+
+              <div class="form-group">
+                <label>Product Name *</label>
+                <input type="text" [(ngModel)]="productForm.name" name="name" required placeholder="e.g. Denim Jeans">
+              </div>
+
+              <div class="form-group">
+                <label>Brand *</label>
+                <input type="text" [(ngModel)]="productForm.brand" name="brand" required placeholder="e.g. Tommy Hilfiger">
+              </div>
+
+              <div class="form-group">
+                <label>Category *</label>
+
+                <select
+                  [(ngModel)]="productForm.categoryId"
+                  name="categoryId"
+                  required>
+
+                  <option [ngValue]="0" disabled>
+                    Select Category
+                  </option>
+
+                  @for (cat of categories; track cat.id) {
+                    <option [ngValue]="cat.id">
+                      {{ cat.name }}
+                    </option>
+                  }
+                </select>
+              </div>
+
+              @if(productForm.sizeType === 'FREE') {
+
+                <div class="form-group">
+                    <label>Stock *</label>
+
+                    <input
+                        type="number"
+                        [(ngModel)]="productForm.stock"
+                        name="stock"
+                        required
+                        min="0">
+                </div>
+
+                } @else {
+
+                <div class="form-group">
+
+                    <label>Total Stock</label>
+
+                    <input
+                        type="number"
+                        [value]="getTotalStock()"
+                        readonly>
+
+                </div>
+              }  
+
+
+              <div class="form-group">
+                <label>Price (Rs.) *</label>
+                <input type="number" [(ngModel)]="productForm.price" name="price" required min="0">
+              </div>
+
+              <div class="form-group">
+                <label>Discount (%)</label>
+                <input type="number" [(ngModel)]="productForm.discount" name="discount" min="0" max="100" placeholder="0">
+              </div>
+
+
+              <div class="form-group">
+                <label>Size Type</label>
+
+                <select
+                  [(ngModel)]="productForm.sizeType"
+                  name="sizeType">
+
+                  <option value="SHIRT">Shirt Sizes</option>
+                  <option value="JEANS">Jeans Sizes</option>
+                  <option value="SHOES">Shoes Sizes</option>
+                  <option value="FREE">Free Size</option>
+
+                </select>
+              </div>
+
+              @if(productForm.sizeType !== 'FREE'){
+
+              <div class="form-full">
+
+                  <label>Available Sizes</label>
+
+                  @for(size of productForm.sizes; track $index){
+
+                  <div class="flex gap-3 mb-3">
+
+                      <input
+                          type="text"
+                          [(ngModel)]="size.size"
+                          [name]="'size'+$index"
+                          placeholder="Size">
+
+                      <input
+                          type="number"
+                          [(ngModel)]="size.stock"
+                          [name]="'stock'+$index"
+                          placeholder="Stock">
+
+                      <button
+                          type="button"
+                          class="btn-secondary"
+                          (click)="removeSize($index)">
+                          Remove
+                      </button>
+
+                  </div>
+
+                  }
+
+                  <button
+                      type="button"
+                      class="btn-primary"
+                      (click)="addSize()">
+
+                      + Add Size
+
+                  </button>
+
+              </div>
+
+              }
+
+              <div class="form-group form-full">
+
+              <label>Product Image</label>
+
+              <input
+                type="file"
+                accept="image/*"
+                (change)="uploadImage($event)">
+
+              @if(uploading){
+                <p>Uploading image...</p>
+              }
+
+              @if(productForm.imageUrl){
+
+                <div style="margin-top:15px">
+                  <img
+                    [src]="productForm.imageUrl"
+                    alt="Preview"
+                    width="180"
+                    style="border-radius:10px;border:1px solid #ddd;">
+                </div>
+
+              }
+
+            </div>
+
+              <div class="form-group form-full">
+                <label>Description</label>
+                <textarea [(ngModel)]="productForm.description" name="description" rows="3" placeholder="Product description..."></textarea>
+              </div>
+
+              <div class="form-group form-full">
+                <label class="checkbox-group-label">Status</label>
+                <div class="checkbox-group">
+                  <label class="checkbox-item">
+                    <input type="checkbox" [(ngModel)]="productForm.active" name="active">
+                    Active (visible to customers)
+                  </label>
+                </div>
+              </div>
+
+            </div>
+            <div class="form-actions">
+              <button type="button" class="btn-secondary" (click)="cancelForm()">Cancel</button>
+              <button type="submit" class="btn-primary">
+                {{ activeView() === 'add-product' ? '+ Add Product' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    }
+
+  </main>
+</div>

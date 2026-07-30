@@ -1,0 +1,9 @@
+/* Progress bar fills across the active dot over 4 seconds */
+.progress-bar {
+  animation: progress 4s linear forwards;
+}
+
+@keyframes progress {
+  from { width: 0%; }
+  to   { width: 100%; }
+}

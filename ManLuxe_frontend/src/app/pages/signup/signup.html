@@ -1,0 +1,222 @@
+﻿<div class="min-h-screen flex">
+
+  <!-- Left panel -->
+  <div class="hidden lg:flex lg:w-1/2 relative bg-primary overflow-hidden">
+    <img src="/images/product-dress.jpg" alt="" class="absolute inset-0 w-full h-full object-cover opacity-40">
+    <div class="absolute inset-0 bg-gradient-to-br from-primary/90 to-secondary/50"></div>
+    <div class="relative flex flex-col justify-between p-12 text-white">
+      <a routerLink="/" class="text-2xl font-display font-bold">LUXE<span class="text-accent">WEAR</span></a>
+      <div>
+        <h2 class="text-4xl font-display font-bold leading-tight mb-6">
+          Join the LuxeWear<br>community today.
+        </h2>
+        <div class="space-y-3">
+          @for (perk of perks; track perk.text) {
+            <div class="flex items-center gap-3">
+              <span class="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">{{ perk.icon }}</span>
+              <span class="text-sm text-white/80">{{ perk.text }}</span>
+            </div>
+          }
+        </div>
+      </div>
+      <div class="flex gap-4 text-sm text-white/40">
+        <span>Men''s</span><span>·</span><span>Women''s</span><span>·</span><span>Trending</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="flex-1 flex items-center justify-center p-6 bg-gray-50">
+    <div class="w-full max-w-md">
+
+      <div class="lg:hidden text-center mb-8">
+        <a routerLink="/" class="text-3xl font-display font-bold text-primary">LUXE<span class="text-secondary">WEAR</span></a>
+      </div>
+
+      <div class="bg-white rounded-3xl shadow-xl p-8 md:p-10">
+
+        <!-- ── INLINE BANNER (top of card, below heading) ── -->
+        @if (banner) {
+          <div class="inline-banner mb-6" [class.inline-banner--success]="banner.type === 'success'"
+               [class.inline-banner--error]="banner.type === 'error'">
+            <div class="inline-banner__icon">
+              {{ banner.type === 'success' ? '✅' : '❌' }}
+            </div>
+            <div>
+              <p class="inline-banner__title">{{ banner.title }}</p>
+              <p class="inline-banner__msg">{{ banner.message }}</p>
+            </div>
+            @if (banner.type === 'error') {
+              <button (click)="banner = null" class="inline-banner__close">✕</button>
+            }
+          </div>
+        }
+
+        <h1 class="text-2xl font-display font-bold text-primary mb-1">Create your account ✨</h1>
+        <p class="text-gray-400 text-sm mb-7">Start your style journey with LuxeWear</p>
+
+        <!-- SUCCESS STATE -->
+        @if (success) {
+          <div class="flex flex-col items-center py-10 text-center">
+            <div class="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-3xl mb-4 animate-bounce-in">✅</div>
+            <h3 class="text-lg font-bold text-gray-800 mb-1">You''re all set!</h3>
+            <p class="text-gray-400 text-sm mb-4">Redirecting to sign in...</p>
+            <div class="w-8 h-8 border-3 border-green-200 border-t-green-500 rounded-full animate-spin"></div>
+          </div>
+        }
+
+        @if (!success) {
+        <form
+          #signupForm="ngForm"
+          (ngSubmit)="submit()"
+          novalidate>
+
+          <!-- Full Name -->
+          <div class="mb-4">
+            <label class="form-label">Full Name <span class="required-star">*</span></label>
+            <input type="text" [(ngModel)]="name" name="name"
+              class="input-field" [class.input-error]="errors['name']"
+              [class.input-ok]="name.trim() && !errors['name']"
+              placeholder="Your full name" autocomplete="name">
+            @if (errors['name']) {
+              <p class="field-error"><span>⚠</span> {{ errors['name'] }}</p>
+            }
+          </div>
+
+          <!-- Email -->
+
+          <div class="mb-4">
+
+  <label class="form-label">
+    Email <span class="required-star">*</span>
+  </label>
+
+  <div class="relative">
+
+    <input
+    type="email"
+    name="email"
+    [(ngModel)]="email"
+    (ngModelChange)="onEmailChange()"
+    class="input-field"
+    [class.input-error]="errors['email']"
+    placeholder="name@gmail.com"
+    autocomplete="email">
+
+    @if(errors['email']) {
+    <p class="field-error">
+        {{ errors['email'] }}
+    </p>
+  }
+
+  </div>
+
+  @if(errors['email']){
+    <p class="field-error">
+      <span>⚠</span>
+      {{ errors['email'] }}
+    </p>
+  }
+
+</div>
+
+          <!-- Password -->
+          <div class="mb-4">
+            <label class="form-label">Password <span class="required-star">*</span></label>
+            <div class="relative">
+              <input [type]="showPassword ? 'text' : 'password'"
+                [(ngModel)]="password" name="password"
+                class="input-field pr-10" [class.input-error]="errors['password']"
+                [class.input-ok]="password.length >= 6 && !errors['password']"
+                placeholder="Min. 6 characters" autocomplete="new-password">
+              <button type="button" (click)="showPassword = !showPassword" class="eye-btn">
+                {{ showPassword ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (errors['password']) {
+              <p class="field-error"><span>⚠</span> {{ errors['password'] }}</p>
+            }
+            <!-- password strength bar -->
+            @if (password) {
+              <div class="mt-1.5 flex gap-1">
+                <div class="h-1 flex-1 rounded-full transition-all"
+                  [class.bg-red-400]="password.length < 6"
+                  [class.bg-yellow-400]="password.length >= 6 && password.length < 10"
+                  [class.bg-green-400]="password.length >= 10"></div>
+                <div class="h-1 flex-1 rounded-full transition-all"
+                  [class.bg-yellow-400]="password.length >= 6 && password.length < 10"
+                  [class.bg-green-400]="password.length >= 10"
+                  [class.bg-gray-100]="password.length < 6"></div>
+                <div class="h-1 flex-1 rounded-full transition-all"
+                  [class.bg-green-400]="password.length >= 10"
+                  [class.bg-gray-100]="password.length < 10"></div>
+              </div>
+              <p class="text-xs mt-0.5"
+                [class.text-red-400]="password.length < 6"
+                [class.text-yellow-500]="password.length >= 6 && password.length < 10"
+                [class.text-green-500]="password.length >= 10">
+                {{ password.length < 6 ? 'Too short' : password.length < 10 ? 'Good' : 'Strong' }}
+              </p>
+            }
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-5">
+            <label class="form-label">Confirm Password <span class="required-star">*</span></label>
+            <div class="relative">
+              <input [type]="showConfirm ? 'text' : 'password'"
+                [(ngModel)]="confirmPassword" name="confirmPassword"
+                class="input-field pr-10" [class.input-error]="errors['confirmPassword']"
+                [class.input-ok]="confirmPassword && confirmPassword === password && !errors['confirmPassword']"
+                placeholder="Repeat your password" autocomplete="new-password">
+              <button type="button" (click)="showConfirm = !showConfirm" class="eye-btn">
+                {{ showConfirm ? '🙈' : '👁️' }}
+              </button>
+            </div>
+            @if (errors['confirmPassword']) {
+              <p class="field-error"><span>⚠</span> {{ errors['confirmPassword'] }}</p>
+            }
+          </div>
+
+          <!-- Terms -->
+          <label class="flex items-start gap-3 mb-5 cursor-pointer group">
+            <input type="checkbox" [(ngModel)]="agreeTerms" name="terms"
+              class="mt-0.5 w-4 h-4 accent-secondary rounded shrink-0">
+            <span class="text-sm text-gray-500 group-hover:text-gray-700 transition-colors">
+              I agree to the
+              <a class="text-secondary hover:underline font-medium">Terms of Service</a>
+              and
+              <a class="text-secondary hover:underline font-medium">Privacy Policy</a>
+            </span>
+          </label>
+          @if (errors['terms']) {
+            <p class="field-error -mt-3 mb-3"><span>⚠</span> {{ errors['terms'] }}</p>
+          }
+
+          <button type="submit" [disabled]="loading"
+            class="w-full btn-primary py-3.5 text-base mb-4 disabled:opacity-70 disabled:cursor-not-allowed
+                   flex items-center justify-center gap-2">
+            @if (loading) {
+              <span class="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin"></span>
+              <span>Creating account...</span>
+            } @else {
+              <span>Create Account →</span>
+            }
+          </button>
+
+        </form>
+        }
+
+        <p class="text-center text-sm text-gray-500">
+          Already have an account?
+          <a routerLink="/login" class="text-secondary font-semibold hover:underline ml-1">Sign in</a>
+        </p>
+
+      </div>
+
+      <p class="text-center text-xs text-gray-400 mt-6">
+        <a routerLink="/" class="hover:text-secondary transition-colors">← Back to store</a>
+      </p>
+    </div>
+  </div>
+</div>

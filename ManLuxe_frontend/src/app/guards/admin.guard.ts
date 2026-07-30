@@ -1,0 +1,15 @@
+﻿import { inject } from '@angular/core';
+import { CanActivateFn, Router } from '@angular/router';
+import { Auth } from '../services/auth';
+
+export const adminGuard: CanActivateFn = () => {
+  const auth   = inject(Auth);
+  const router = inject(Router);
+
+  if (auth.isLoggedIn() && auth.isAdmin()) {
+    return true;
+  }
+
+  // Not logged in -> go to login; logged in but not admin -> go home
+  return router.createUrlTree(auth.isLoggedIn() ? ['/'] : ['/login']);
+};

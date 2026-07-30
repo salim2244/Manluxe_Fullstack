@@ -1,0 +1,738 @@
+<app-header></app-header>
+
+<!-- ── ORDER SUCCESS MODAL ──────────────────────────────────────────────────────── -->
+@if (orderPlaced) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/50 backdrop-blur-sm animate-fade-in">
+    <div class="bg-white rounded-3xl shadow-2xl p-8 max-w-md w-full text-center animate-slide-up">
+      <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-5">
+        <span class="text-4xl">✅</span>
+      </div>
+      <h1 class="text-2xl font-display font-bold text-primary mb-2">Order Placed Successfully!</h1>
+      <p class="text-gray-500 mb-1">Thank you for shopping with LuxeWear.</p>
+      <p class="text-sm text-gray-400 mb-6">
+        Order ID: <span class="font-bold text-primary">#{{ orderNumber }}</span>
+      </p>
+      <div class="bg-gray-50 rounded-2xl p-4 mb-6 text-sm text-gray-500 space-y-1">
+        <p>📦 Estimated delivery: <strong class="text-gray-700">3–5 business days</strong></p>
+        <p>📧 Confirmation sent to <strong class="text-gray-700">{{ address.email }}</strong></p>
+      </div>
+      <div class="flex gap-3 mb-4">
+        <button (click)="viewOrders()" class="flex-1 btn-outline py-3.5">
+          View Orders
+        </button>
+        <button (click)="closeSuccessAndGoHome()" class="flex-1 btn-primary py-3.5">
+          Continue Shopping →
+        </button>
+      </div>
+      <p class="text-xs text-gray-400">Redirecting to home page in 3 seconds...</p>
+    </div>
+  </div>
+}
+
+<!-- ── CHECKOUT FLOW ──────────────────────────────────────────────────────── -->
+@if (!orderPlaced) {
+<main class="min-h-screen bg-gray-50 py-8 px-4">
+  <div class="container mx-auto max-w-6xl">
+
+    <!-- Page title -->
+    <div class="mb-6">
+      <h1 class="section-title mb-1">Checkout</h1>
+      <a routerLink="/cart" class="text-sm text-secondary hover:underline">← Back to Cart</a>
+    </div>
+
+    <!-- Stepper -->
+    <div class="flex items-center mb-8">
+      @for (s of steps; track s.id; let i = $index) {
+        <div class="flex items-center" [class.flex-1]="i < steps.length - 1">
+          <button
+            (click)="goToStep(s.id)"
+            [disabled]="placingOrder"
+            class="flex items-center gap-2 transition-all"
+            [class.cursor-pointer]="isStepDone(s.id) && !placingOrder"
+            [class.cursor-default]="!isStepDone(s.id) || placingOrder"
+            [class.opacity-50]="placingOrder">
+            <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all"
+              [class.bg-secondary]="step === s.id"
+              [class.text-white]="step === s.id"
+              [class.bg-green-500]="isStepDone(s.id)"
+              [class.text-white]="isStepDone(s.id)"
+              [class.bg-gray-200]="!isStepDone(s.id) && step !== s.id"
+              [class.text-gray-400]="!isStepDone(s.id) && step !== s.id">
+              {{ isStepDone(s.id) ? '✓' : s.icon }}
+            </div>
+            <span class="hidden sm:block text-sm font-medium"
+              [class.text-secondary]="step === s.id"
+              [class.text-green-600]="isStepDone(s.id)"
+              [class.text-gray-400]="!isStepDone(s.id) && step !== s.id">
+              {{ s.label }}
+            </span>
+          </button>
+          @if (i < steps.length - 1) {
+            <div class="flex-1 h-0.5 mx-3 rounded-full transition-all"
+              [class.bg-green-400]="isStepDone(s.id)"
+              [class.bg-gray-200]="!isStepDone(s.id)">
+            </div>
+          }
+        </div>
+      }
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+
+      <!-- ── MAIN FORM ──────────────────────────────────────────────── -->
+      <div class="lg:col-span-2">
+
+        <!-- STEP 1: Address -->
+        @if (step === 'address') {
+
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+
+
+        <h2 class="font-display font-bold text-lg text-primary mb-5 flex items-center gap-2">
+          <span>📍</span> Delivery Address
+        </h2>
+
+
+        <!-- SAVED ADDRESS SELECTOR -->
+        @if(showAddressSelector && savedAddresses.length > 0){
+
+        <div class="space-y-4">
+
+        @if(selectedAddress){
+
+        <div class="border rounded-xl p-4 bg-red-50 border-secondary">
+
+        <h3 class="font-semibold text-gray-700 mb-3">
+        Selected Delivery Address
+        </h3>
+
+        <div class="flex justify-between">
+
+        <div>
+
+        <p class="font-semibold text-gray-800">
+        {{selectedAddress.fullName}}
+        </p>
+
+        <p class="text-sm text-gray-600">
+
+        {{selectedAddress.addressLine1}}
+
+        @if(selectedAddress.addressLine2){
+        , {{selectedAddress.addressLine2}}
+        }
+
+        <br>
+
+        {{selectedAddress.city}},
+        {{selectedAddress.state}}
+        - {{selectedAddress.pincode}}
+
+        <br>
+
+        📞 {{selectedAddress.phone}}
+
+        </p>
+
+        </div>
+
+        <span class="text-green-600 font-bold">
+        ✓ Selected
+        </span>
+
+        </div>
+
+        </div>
+
+        }
+
+        <button
+        (click)="showAddressListModal()"
+        class="w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-secondary font-semibold">
+
+        @if(selectedAddress){
+        Change Address
+        } @else {
+        Select Delivery Address
+        }
+
+        </button>
+
+
+        <button
+        (click)="addNewAddress()"
+        class="w-full border-2 border-dashed border-gray-300 rounded-xl py-3 text-secondary font-semibold">
+
+        + Add New Address
+
+        </button>
+
+
+        @if(selectedAddress){
+
+        <button
+        (click)="useSelectedAddress()"
+        class="w-full btn-primary py-3.5 mt-5">
+
+        Deliver Here →
+
+        </button>
+
+        }
+
+        </div>
+
+        }
+
+        <!-- ADDRESS LIST MODAL -->
+        @if(showAddressList && savedAddresses.length > 0){
+
+        <div class="space-y-4">
+
+        <div class="flex justify-between items-center">
+
+        <h3 class="font-semibold text-gray-700">
+        Select Delivery Address
+        </h3>
+
+        <button
+        (click)="hideAddressListModal()"
+        class="text-sm text-gray-500 hover:text-gray-700">
+
+        ✕ Close
+
+        </button>
+
+        </div>
+
+        @for(addressItem of savedAddresses; track addressItem.id){
+
+        <div 
+        class="border rounded-xl p-4 cursor-pointer transition"
+        [class.border-secondary]="selectedAddress?.id === addressItem.id"
+        [class.bg-red-50]="selectedAddress?.id === addressItem.id"
+        (click)="selectAddress(addressItem)"
+        >
+
+        <div class="flex justify-between items-start">
+
+        <div class="flex-1">
+
+        <p class="font-semibold text-gray-800">
+        {{addressItem.fullName}}
+        </p>
+
+        <p class="text-sm text-gray-600">
+
+        {{addressItem.addressLine1}}
+
+        @if(addressItem.addressLine2){
+        , {{addressItem.addressLine2}}
+        }
+
+        <br>
+
+        {{addressItem.city}},
+        {{addressItem.state}}
+        - {{addressItem.pincode}}
+
+        <br>
+
+        📞 {{addressItem.phone}}
+
+        </p>
+
+        </div>
+
+        <div class="flex flex-col gap-2 ml-4">
+
+        <button
+        (click)="editAddress(addressItem); $event.stopPropagation()"
+        class="text-sm text-secondary hover:underline">
+
+        Edit
+
+        </button>
+
+        @if(selectedAddress?.id === addressItem.id){
+
+        <span class="text-green-600 font-bold">
+        ✓ Selected
+        </span>
+
+        }
+
+        </div>
+
+        </div>
+
+        </div>
+
+        }
+
+        </div>
+
+        }
+
+
+
+        <!-- NEW ADDRESS FORM -->
+
+        @if(showNewAddress){
+
+        <div>
+
+
+        <div class="flex justify-between items-center mb-4">
+
+        <h3 class="font-semibold text-gray-700">
+        @if(editingAddress){
+        Edit Address
+        } @else {
+        Add New Address
+        }
+        </h3>
+
+        <button
+        (click)="showAddressSelector = true; showNewAddress = false; showAddressList = false; editingAddress = null;"
+        class="text-sm text-gray-500 hover:text-gray-700">
+
+        ✕ Cancel
+
+        </button>
+
+        </div>
+
+
+        <div class="grid sm:grid-cols-2 gap-4">
+
+
+        <div class="sm:col-span-2">
+
+        <label class="label">
+        Full Name *
+        </label>
+
+        <input
+        [(ngModel)]="address.fullName"
+        name="fullName"
+        class="input-field"
+        placeholder="Full name">
+
+        </div>
+
+
+
+        <div>
+
+        <label class="label">
+        Email
+        </label>
+
+        <input
+        [(ngModel)]="address.email"
+        name="email"
+        class="input-field"
+        readonly>
+
+        </div>
+
+
+
+
+        <div>
+
+        <label class="label">
+        Phone *
+        </label>
+
+        <input
+        [(ngModel)]="address.phone"
+        name="phone"
+        class="input-field"
+        placeholder="9876543210">
+
+        </div>
+
+
+
+
+        <div class="sm:col-span-2">
+
+        <label class="label">
+        Address Line 1 *
+        </label>
+
+        <input
+        [(ngModel)]="address.line1"
+        name="line1"
+        class="input-field"
+        placeholder="House no, street">
+
+        </div>
+
+
+
+
+        <div class="sm:col-span-2">
+
+        <label class="label">
+        Address Line 2
+        </label>
+
+        <input
+        [(ngModel)]="address.line2"
+        name="line2"
+        class="input-field"
+        placeholder="Landmark">
+
+        </div>
+
+
+
+
+        <div>
+
+        <label class="label">
+        Pincode *
+        </label>
+
+        <input
+        [(ngModel)]="address.pincode"
+        name="pincode"
+        maxlength="6"
+        (input)="fetchPincodeDetails()"
+        class="input-field"
+        placeholder="400001">
+
+        </div>
+
+
+
+
+        <div>
+
+        <label class="label">
+        City
+        </label>
+
+        <input
+        [(ngModel)]="address.city"
+        name="city"
+        class="input-field"
+        readonly>
+
+        </div>
+
+
+
+
+        <div>
+
+        <label class="label">
+        State
+        </label>
+
+        <input
+        [(ngModel)]="address.state"
+        name="state"
+        class="input-field"
+        readonly>
+
+        </div>
+
+
+        </div>
+
+
+
+        <button
+        (click)="saveAddress()"
+        class="w-full btn-primary py-3.5 mt-6">
+
+        Save Address & Continue →
+
+        </button>
+
+
+        </div>
+
+        }
+
+
+        </div>
+
+        }
+
+        <!-- STEP 2: Payment -->
+        @if (step === 'payment') {
+
+          <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 animate-fade-in">
+
+            <h2 class="font-display font-bold text-lg text-primary mb-5 flex items-center gap-2">
+              <span>💳</span>
+              Payment Method
+            </h2>
+
+            <div class="space-y-4">
+
+              <!-- Online Payment -->
+              <div
+                (click)="paymentMethod = 'card'"
+                class="border-2 rounded-2xl p-5 cursor-pointer transition-all"
+                [class.border-secondary]="paymentMethod === 'card'"
+                [class.bg-red-50]="paymentMethod === 'card'"
+                [class.border-gray-200]="paymentMethod !== 'card'">
+
+                <div class="flex items-start gap-4">
+
+                  <input
+                    type="radio"
+                    name="payment"
+                    [checked]="paymentMethod === 'card'"
+                    class="mt-1">
+
+                  <div class="flex-1">
+
+                    <h3 class="font-semibold text-gray-800">
+                      Online Payment
+                    </h3>
+
+                    <p class="text-sm text-gray-500 mt-1">
+                      Pay securely using Razorpay.
+                    </p>
+
+                    <div class="mt-3 flex flex-wrap gap-2">
+
+                      <span class="px-3 py-1 bg-gray-100 rounded-full text-xs">
+                        💳 Card
+                      </span>
+
+                      <span class="px-3 py-1 bg-gray-100 rounded-full text-xs">
+                        📱 UPI
+                      </span>
+
+                      <span class="px-3 py-1 bg-gray-100 rounded-full text-xs">
+                        🏦 Net Banking
+                      </span>
+
+                      <span class="px-3 py-1 bg-gray-100 rounded-full text-xs">
+                        👛 Wallet
+                      </span>
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+              <!-- Cash on Delivery -->
+              <div
+                (click)="paymentMethod = 'cod'"
+                class="border-2 rounded-2xl p-5 cursor-pointer transition-all"
+                [class.border-secondary]="paymentMethod === 'cod'"
+                [class.bg-red-50]="paymentMethod === 'cod'"
+                [class.border-gray-200]="paymentMethod !== 'cod'">
+
+                <div class="flex items-start gap-4">
+
+                  <input
+                    type="radio"
+                    name="payment"
+                    [checked]="paymentMethod === 'cod'"
+                    class="mt-1">
+
+                  <div class="flex-1">
+
+                    <h3 class="font-semibold text-gray-800">
+                      Cash on Delivery
+                    </h3>
+
+                    <p class="text-sm text-gray-500 mt-1">
+                      Pay when your order is delivered.
+                    </p>
+
+                    <div
+                      class="mt-3 bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-700">
+
+                      ₹40 Cash on Delivery charge will be applied.
+
+                    </div>
+
+                  </div>
+
+                </div>
+
+              </div>
+
+            </div>
+
+            <button
+              (click)="nextStep()"
+              class="w-full btn-primary py-3.5 mt-6">
+
+              Review Order →
+
+            </button>
+
+          </div>
+
+        }
+
+        <!-- STEP 3: Review -->
+        @if (step === 'review') {
+          <div class="space-y-4 animate-fade-in">
+
+            <!-- Address summary -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2"><span>📍</span> Delivery Address</h3>
+                <button (click)="step = 'address'" class="text-xs text-secondary hover:underline">Edit</button>
+              </div>
+              <p class="text-sm text-gray-600">
+                {{ address.fullName }}<br>
+                {{ address.line1 }}{{ address.line2 ? ', ' + address.line2 : '' }}<br>
+                {{ address.city }}{{ address.state ? ', ' + address.state : '' }} — {{ address.pincode }}<br>
+                {{ address.phone }}
+              </p>
+            </div>
+
+            <!-- Payment summary -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-semibold text-gray-800 flex items-center gap-2"><span>💳</span> Payment</h3>
+                <button (click)="step = 'payment'" class="text-xs text-secondary hover:underline">Edit</button>
+              </div>
+              <p class="text-sm text-gray-600">
+                @if (paymentMethod === 'card') { Credit / Debit Card ending in {{ card.number.slice(-4) || '****' }} }
+                @if (paymentMethod === 'upi') { UPI — {{ upiId || 'Not entered' }} }
+                @if (paymentMethod === 'cod') { Cash on Delivery }
+              </p>
+            </div>
+
+            <!-- Items summary -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+              <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2"><span>🛍️</span> Items ({{ items.length }})</h3>
+              <div class="space-y-3">
+                @for (item of items; track item.id) {
+                  <div class="flex gap-3 items-center">
+                    <img [src]="item.image" [alt]="item.name" class="w-12 h-14 object-cover rounded-xl bg-gray-100 shrink-0">
+                    <div class="flex-1 min-w-0">
+                      <p class="text-xs text-gray-400">{{ item.brand }}</p>
+                      <p class="text-sm font-medium text-gray-800 truncate">{{ item.name }}</p>
+                      <p class="text-xs text-gray-400">
+                        @if (item.size) { Size: {{ item.size }} · }
+                        @if (item.color) { {{ item.color }} · }
+                        Qty: {{ item.quantity }}
+                      </p>
+                    </div>
+                    <span class="font-bold text-sm text-gray-900 shrink-0">₹{{ (item.price * item.quantity) | number }}</span>
+                  </div>
+                }
+              </div>
+            </div>
+
+            <button
+              (click)="placeOrder()"
+              [disabled]="placingOrder"
+              class="w-full btn-primary py-4 text-base disabled:opacity-50 disabled:cursor-not-allowed">
+
+              @if (placingOrder) {
+                Placing Order...
+              } @else {
+                🎉 Place Order — ₹{{ total | number }}
+              }
+
+            </button>
+          </div>
+        }
+
+      </div>
+
+      <!-- ── ORDER SUMMARY SIDEBAR ──────────────────────────────────── -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sticky top-24">
+          <h2 class="font-display font-bold text-lg text-primary mb-5">Order Summary</h2>
+
+          <!-- Items list -->
+          <div class="space-y-3 mb-5 max-h-52 overflow-y-auto pr-1">
+            @for (item of items; track item.id) {
+              <div class="flex gap-3 items-center">
+                <img [src]="item.image" [alt]="item.name" class="w-10 h-12 object-cover rounded-lg bg-gray-100 shrink-0">
+                <div class="flex-1 min-w-0">
+                  <p class="text-xs font-medium text-gray-700 truncate">{{ item.name }}</p>
+                  <p class="text-xs text-gray-400">Qty: {{ item.quantity }}</p>
+                </div>
+                <span class="text-xs font-bold text-gray-800 shrink-0">₹{{ (item.price * item.quantity) | number }}</span>
+              </div>
+            }
+          </div>
+
+          <!-- Coupon -->
+          <div class="mb-4">
+            <div class="flex gap-2">
+              <input
+                [(ngModel)]="couponCode"
+                name="coupon"
+                class="flex-1 input-field text-sm py-2"
+                placeholder="Coupon code"
+                [disabled]="couponApplied">
+              <button
+                (click)="applyCoupon()"
+                [disabled]="couponApplied"
+                class="btn-outline text-sm px-4 py-2 disabled:opacity-50">
+                {{ couponApplied ? '✓' : 'Apply' }}
+              </button>
+            </div>
+            @if (couponApplied) {
+              <p class="text-xs text-green-600 mt-1">✓ Coupon applied! You save ₹{{ couponDiscount | number }}</p>
+            }
+            @if (couponError) {
+              <p class="text-xs text-red-500 mt-1">{{ couponError }}</p>
+            }
+            <p class="text-xs text-gray-400 mt-1">Try: <span class="font-mono text-secondary cursor-pointer" (click)="couponCode='LUXE20'">LUXE20</span> or <span class="font-mono text-secondary cursor-pointer" (click)="couponCode='FLAT200'">FLAT200</span></p>
+          </div>
+
+          <!-- Price breakdown -->
+          <div class="space-y-2.5 text-sm border-t border-gray-100 pt-4 mb-4">
+            <div class="flex justify-between text-gray-500">
+              <span>Subtotal</span>
+              <span>₹{{ subtotal | number }}</span>
+            </div>
+            <div class="flex justify-between text-gray-500">
+              <span>Shipping</span>
+              <span [class.text-green-500]="shipping === 0">{{ shipping === 0 ? 'Free' : '₹' + shipping }}</span>
+            </div>
+            @if (couponApplied) {
+              <div class="flex justify-between text-secondary">
+                <span>Discount</span>
+                <span>−₹{{ discount | number }}</span>
+              </div>
+            }
+            @if (paymentMethod === 'cod') {
+              <div class="flex justify-between text-amber-600">
+                <span>COD Fee</span>
+                <span>₹40</span>
+              </div>
+            }
+          </div>
+
+          <div class="flex justify-between font-bold text-gray-900 text-base border-t border-gray-100 pt-4">
+            <span>Total</span>
+            <span>₹{{ (total + (paymentMethod === 'cod' ? 40 : 0)) | number }}</span>
+          </div>
+
+          <div class="mt-4 flex items-center gap-2 text-xs text-gray-400 justify-center">
+            <span>🔒</span> Secure & encrypted checkout
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</main>
+}
+
+<app-footer></app-footer>

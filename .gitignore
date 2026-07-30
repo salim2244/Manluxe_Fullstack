@@ -1,0 +1,18 @@
+# Java
+FirstCopy_backend/target/
+*.class
+
+# Maven
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Angular
+ManLuxe_frontend/node_modules/
+ManLuxe_frontend/dist/

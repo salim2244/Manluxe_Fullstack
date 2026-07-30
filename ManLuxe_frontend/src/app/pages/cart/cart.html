@@ -1,0 +1,94 @@
+<app-header></app-header>
+
+<main class="min-h-screen bg-gray-50 py-10 px-4">
+  <div class="container mx-auto max-w-5xl">
+
+    <h1 class="section-title mb-2">Your Cart 🛍️</h1>
+    <p class="text-gray-400 text-sm mb-8">{{ count }} item{{ count !== 1 ? 's' : '' }}</p>
+
+    @if (items.length === 0) {
+      <div class="text-center py-24 bg-white rounded-3xl shadow-sm">
+        <p class="text-6xl mb-4">🛒</p>
+        <h2 class="text-xl font-semibold text-gray-700 mb-2">Your cart is empty</h2>
+        <p class="text-gray-400 mb-6">Looks like you haven't added anything yet.</p>
+        <a routerLink="/" class="btn-primary inline-block">Start Shopping →</a>
+      </div>
+    } @else {
+      <div class="grid lg:grid-cols-3 gap-8">
+
+        <!-- Items -->
+        <div class="lg:col-span-2 space-y-4">
+          @for (item of items; track item.id) {
+            <div class="bg-white rounded-2xl p-4 flex gap-4 shadow-sm border border-gray-100">
+              <img [src]="item.image" [alt]="item.name"
+                   class="w-20 h-24 object-cover rounded-xl bg-gray-100 shrink-0">
+              <div class="flex-1 min-w-0">
+                <p class="text-xs text-gray-400 font-medium mb-0.5">{{ item.brand }}</p>
+                <h3 class="font-semibold text-gray-900 text-sm mb-1 truncate">{{ item.name }}</h3>
+                <div class="flex gap-3 text-xs text-gray-400 mb-3">
+                  @if (item.size) { <span>Size: {{ item.size }}</span> }
+                  @if (item.color) { <span>Color: {{ item.color }}</span> }
+                </div>
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-2 border border-gray-200 rounded-full px-2">
+                    <button (click)="updateQty(item.id, item.quantity - 1)"
+                      class="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-secondary transition-colors font-bold">−</button>
+                    <span class="text-sm font-semibold w-5 text-center">{{ item.quantity }}</span>
+                    <button (click)="updateQty(item.id, item.quantity + 1)"
+                      class="w-7 h-7 flex items-center justify-center text-gray-500 hover:text-secondary transition-colors font-bold">+</button>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <span class="font-bold text-gray-900">₹{{ (item.price * item.quantity) | number }}</span>
+                    <button (click)="remove(item.id)"
+                      class="text-gray-300 hover:text-red-400 transition-colors text-lg">🗑️</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Summary -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 sticky top-24">
+            <h2 class="font-display font-bold text-lg text-primary mb-5">Order Summary</h2>
+            <div class="space-y-3 text-sm mb-5">
+              <div class="flex justify-between text-gray-500">
+                <span>Subtotal ({{ count }} items)</span>
+                <span>₹{{ total | number }}</span>
+              </div>
+              <div class="flex justify-between text-gray-500">
+                <span>Shipping</span>
+                <span class="text-green-500 font-medium">{{ total >= 999 ? 'Free' : '₹99' }}</span>
+              </div>
+              <div class="flex justify-between text-gray-500">
+                <span>Discount</span>
+                <span class="text-secondary">−₹0</span>
+              </div>
+            </div>
+            <div class="border-t border-gray-100 pt-4 mb-5">
+              <div class="flex justify-between font-bold text-gray-900">
+                <span>Total</span>
+                <span>₹{{ (total >= 999 ? total : total + 99) | number }}</span>
+              </div>
+            </div>
+            <!-- Coupon -->
+            <div class="flex gap-2 mb-5">
+              <input class="flex-1 input-field text-sm py-2" placeholder="Coupon code">
+              <button class="btn-outline text-sm px-4 py-2">Apply</button>
+            </div>
+            <button (click)="proceedToCheckout()" class="block w-full btn-primary py-3.5 text-base text-center">
+              Proceed to Checkout →
+            </button>
+            <a routerLink="/" class="block text-center text-sm text-gray-400 hover:text-secondary mt-3 transition-colors">
+              ← Continue Shopping
+            </a>
+          </div>
+        </div>
+
+      </div>
+    }
+  </div>
+</main>
+
+<app-footer></app-footer>
