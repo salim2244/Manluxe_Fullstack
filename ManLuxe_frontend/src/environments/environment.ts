@@ -1,5 +1,5 @@
 export const environment = {
-  apiUrl: 'http://localhost:8080/api',
+  apiUrl: 'https://manluxe.onrender.com',
 
-  razorpayKey: 'rzp_test_TJiZqQfwQjI6kM'
+  razorpayKey: 'rzp_test_TK4GwZdCmOeyAS'
 };
