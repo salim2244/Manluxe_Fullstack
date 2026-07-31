@@ -19,11 +19,10 @@ export class Home implements OnInit {
   category = 'all';
 
   ngOnInit() {
-    // Read category from query param (e.g. navigated from cart/checkout header)
     this.route.queryParams.subscribe(params => {
+      this.category = params['category'] || 'all';
+
       if (params['category']) {
-        this.category = params['category'];
-        // Scroll to product grid after a tick
         setTimeout(() => {
           const el = document.getElementById('product-grid-section');
           if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });

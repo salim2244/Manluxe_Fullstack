@@ -1,6 +1,7 @@
-import { Component, Input, Output, EventEmitter, inject } from '@angular/core';
+import { Component, Input, Output, EventEmitter, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink, Router } from '@angular/router';
+import { RouterLink, Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { Auth } from '../../services/auth';
 import { Cart } from '../../services/cart';
 import { AuthModal } from '../auth-modal/auth-modal';
@@ -12,7 +13,7 @@ import { AuthModal } from '../auth-modal/auth-modal';
   templateUrl: './header.html',
   styleUrl: './header.css'
 })
-export class Header {
+export class Header implements OnInit {
   @Input() searchQuery = '';
   @Output() searchChange = new EventEmitter<string>();
   @Output() categoryChange = new EventEmitter<string>();
@@ -20,6 +21,7 @@ export class Header {
   auth = inject(Auth);
   cart = inject(Cart);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   isMenuOpen = false;
   showAuth = false;
@@ -32,6 +34,25 @@ export class Header {
     { id: 'womens', label: "Women's" },
   ];
 
+  ngOnInit() {
+    this.updateActiveCategoryFromRoute();
+
+    this.route.queryParams.subscribe(() => {
+      this.updateActiveCategoryFromRoute();
+    });
+
+    this.router.events
+      .pipe(filter(event => event instanceof NavigationEnd))
+      .subscribe(() => {
+        this.updateActiveCategoryFromRoute();
+      });
+  }
+
+  private updateActiveCategoryFromRoute() {
+    const category = this.route.snapshot.queryParamMap.get('category');
+    this.activeCategory = category || 'all';
+  }
+
   onSearch(value: string) {
     this.searchChange.emit(value);
   }
@@ -40,14 +61,12 @@ export class Header {
     this.activeCategory = id;
     this.isMenuOpen = false;
 
-    const isHome = this.router.url === '/' || this.router.url.startsWith('/?');
-    if (isHome) {
-      // Already on home — just emit so the grid filters in place
-      this.categoryChange.emit(id);
-    } else {
-      // On another page — navigate to home with category query param
-      this.router.navigate(['/'], { queryParams: { category: id } });
-    }
+    this.router.navigate(['/'], {
+      queryParams: { category: id },
+      queryParamsHandling: 'merge'
+    });
+
+    this.categoryChange.emit(id);
   }
 
   goToCart() {
