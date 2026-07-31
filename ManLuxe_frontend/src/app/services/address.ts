@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
-
+import { environment } from '../../environments/environment';
 import { Address } from '../models/address';
 
 
@@ -11,7 +11,8 @@ import { Address } from '../models/address';
 export class AddressService {
 
 
-  private apiUrl = 'http://localhost:8080/api/addresses';
+  
+  private apiUrl = `${environment.apiUrl}/addresses`;
 
 
   constructor(private http: HttpClient) { }
@@ -97,7 +98,7 @@ export class AddressService {
   getPincodeDetails(pincode: string): Observable<any> {
 
     return this.http.get<any>(
-      `http://localhost:8080/api/pincode/${pincode}`
+      `${environment.apiUrl}/pincode/${pincode}`
     );
 
   }

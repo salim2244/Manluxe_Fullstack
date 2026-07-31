@@ -4,7 +4,7 @@ import { CartItem } from '../models/cart-item';
 import { tap } from 'rxjs/operators';
 import { Observable } from 'rxjs';
 import { Auth } from './auth';
-
+import { environment } from '../../environments/environment';
 
 @Injectable({
  providedIn:'root'
@@ -36,7 +36,7 @@ export class Cart {
     private auth = inject(Auth);
 
 
-    private api="http://localhost:8080/api/cart";
+    private apiUrl = `${environment.apiUrl}/cart`;
     private readonly LOCAL_STORAGE_KEY = 'local_cart';
 
 
@@ -87,7 +87,7 @@ add(product: any, size?: string, color?: string) {
   // If user is logged in, sync with backend
   if (this.isUserLoggedIn()) {
     return this.http.post<any>(
-      `${this.api}/add/${product.id}`,
+      `${this.apiUrl}/add/${product.id}`,
       {},
       { params }
     ).pipe(
@@ -153,7 +153,7 @@ loadCart() {
 
   // If user is logged in, load from backend
   if (this.isUserLoggedIn()) {
-    this.http.get<any>(this.api).subscribe({
+    this.http.get<any>(this.apiUrl).subscribe({
 
       next: (cart) => {
 
@@ -233,7 +233,7 @@ updateQty(cartItemId: string, qty: number) {
   // If user is logged in, sync with backend
   if (this.isUserLoggedIn()) {
     this.http.put(
-      `${this.api}/update/${cartItemId}?quantity=${qty}`,
+      `${this.apiUrl}/update/${cartItemId}?quantity=${qty}`,
       {}
     ).subscribe({
       next: () => this.loadCart(),
@@ -277,7 +277,7 @@ remove(cartItemId: string) {
 
   // If user is logged in, sync with backend
   if (this.isUserLoggedIn()) {
-    this.http.delete(`${this.api}/remove/${cartItemId}`).subscribe({
+    this.http.delete(`${this.apiUrl}/remove/${cartItemId}`).subscribe({
 
       next: () => {
 
@@ -314,7 +314,7 @@ remove(cartItemId: string) {
 
       // If user is logged in, sync with backend
       if (this.isUserLoggedIn()) {
-        this.http.delete(`${this.api}/clear`)
+        this.http.delete(`${this.apiUrl}/clear`)
           .subscribe({
             next: () => {
               console.log("Cart cleared on backend");
@@ -344,7 +344,7 @@ remove(cartItemId: string) {
               if (item.color) params.color = item.color;
 
               this.http.post<any>(
-                `${this.api}/add/${item.productId}`,
+                `${this.apiUrl}/add/${item.productId}`,
                 {},
                 { params }
               ).subscribe({
