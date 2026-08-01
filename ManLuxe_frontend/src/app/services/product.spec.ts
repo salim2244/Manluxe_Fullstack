@@ -11,8 +11,8 @@ describe('ProductService', () => {
   const base = `${environment.apiUrl}/products`;
 
   const mockProducts: Product[] = [
-    { id: 1, name: 'Denim Jeans', brand: 'Levis', description: 'Blue jeans', price: 2999, discount: 10, stock: 50, imageUrl: 'img1.jpg', active: true, categoryName: 'mens' },
-    { id: 2, name: 'Silk Blouse', brand: 'Zara',  description: 'Silk top',   price: 1999, discount: 0,  stock: 30, imageUrl: 'img2.jpg', active: true, categoryName: 'womens' }
+    { id: 1, name: 'Denim Jeans', brand: 'Levis', description: 'Blue jeans', price: 2999, discount: 10, stock: 50, imageUrl: 'img1.jpg', active: true, categoryName: 'Jeans',  categoryId: 1, gender: 'MEN',   sizeType: 'NUMBER', sizes: [{ id: 1, size: '32', stock: 25 }] },
+    { id: 2, name: 'Silk Blouse', brand: 'Zara',  description: 'Silk top',   price: 1999, discount: 0,  stock: 30, imageUrl: 'img2.jpg', active: true, categoryName: 'Tops',   categoryId: 2, gender: 'WOMEN', sizeType: 'LETTER', sizes: [{ id: 2, size: 'M',  stock: 15 }] }
   ];
 
   beforeEach(() => {
