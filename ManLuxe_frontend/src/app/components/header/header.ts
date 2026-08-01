@@ -62,8 +62,8 @@ export class Header implements OnInit {
     this.isMenuOpen = false;
 
     this.router.navigate(['/'], {
-      queryParams: { category: id },
-      queryParamsHandling: 'merge'
+      queryParams: id === 'all' ? {} : { category: id },
+      replaceUrl: true
     });
 
     this.categoryChange.emit(id);

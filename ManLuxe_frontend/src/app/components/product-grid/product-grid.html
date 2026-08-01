@@ -1,3 +1,33 @@
+<!-- ── LOADING STATE ──────────────────────────────────────────────────── -->
+@if (loading) {
+  <div class="flex flex-col items-center justify-center py-24 gap-4">
+    <div class="w-10 h-10 border-4 border-secondary border-t-transparent rounded-full animate-spin"></div>
+    @if (slowLoading) {
+      <p class="text-sm text-gray-500 text-center px-4">
+        Waking up the server — this may take up to 30 seconds on first load…
+      </p>
+    } @else {
+      <p class="text-sm text-gray-400">Loading products…</p>
+    }
+  </div>
+}
+
+<!-- ── ERROR STATE ──────────────────────────────────────────────────────── -->
+@if (!loading && error && allProducts.length === 0) {
+  <div class="flex flex-col items-center justify-center py-24 gap-4">
+    <p class="text-4xl">⚠️</p>
+    <p class="text-gray-600 text-sm text-center px-4">{{ error }}</p>
+    <button
+      (click)="retryCount = 0; loadProducts()"
+      class="mt-2 px-6 py-2 bg-secondary text-white rounded-full text-sm font-semibold hover:opacity-90 transition-opacity">
+      Retry
+    </button>
+  </div>
+}
+
+<!-- ── CONTENT (only show once products are loaded) ─────────────────────── -->
+@if (!loading && allProducts.length > 0) {
+
 <!-- ── TRENDING MARQUEE (only on home/all view) ─────────────────────────── -->
 @if (!searchQuery && category === 'all') {
   <div class="bg-primary text-white py-2 overflow-hidden">
@@ -208,3 +238,5 @@
     </div>
   </section>
 }
+
+} <!-- end: products loaded -->

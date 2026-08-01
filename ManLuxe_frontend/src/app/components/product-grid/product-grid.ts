@@ -21,6 +21,9 @@ export class ProductGrid implements OnInit, OnChanges {
   allProducts: Product[] = [];
   loading = false;
   error = '';
+  retryCount = 0;
+  maxRetries = 3;
+  slowLoading = false;   // true after 5s — shows "waking up server" hint
 
   activeTab: 'all' | 'trending' | 'new' | 'featured' = 'all';
   activeSub = 'all';
@@ -31,15 +34,37 @@ export class ProductGrid implements OnInit, OnChanges {
 
   loadProducts() {
     this.loading = true;
+    this.error = '';
+    this.slowLoading = false;
+
+    // After 5 seconds show a "server waking up" hint (Render cold start)
+    const slowTimer = setTimeout(() => {
+      if (this.loading) this.slowLoading = true;
+    }, 5000);
+
     this.productService.getAll().subscribe({
       next: data => {
+        clearTimeout(slowTimer);
         this.allProducts = data;
         this.loading = false;
+        this.slowLoading = false;
+        this.retryCount = 0;
       },
       error: err => {
-        this.error = 'Failed to load products.';
+        clearTimeout(slowTimer);
         this.loading = false;
+        this.slowLoading = false;
         console.error(err);
+
+        if (this.retryCount < this.maxRetries) {
+          this.retryCount++;
+          // Exponential back-off: 3s, 6s, 12s
+          const delay = 3000 * this.retryCount;
+          this.error = `Connecting to server… retrying (${this.retryCount}/${this.maxRetries})`;
+          setTimeout(() => this.loadProducts(), delay);
+        } else {
+          this.error = 'Unable to load products. Please refresh the page.';
+        }
       }
     });
   }
